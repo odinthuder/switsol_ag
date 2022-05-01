@@ -1,0 +1,5 @@
+<div style="margin-bottom: 7px;" class="text-center">
+	{%= frappe.defaults.get_default("letter_head")] %}
+</div>
+<p class="text-right text-muted">Printed On {%= dateutil.str_to_user(dateutil.get_datetime_as_string()) %}</p>
+

@@ -1,0 +1,18 @@
+{
+ "add_total_row": 0, 
+ "apply_user_permissions": 1, 
+ "creation": "2017-05-08 16:54:24.374778", 
+ "disabled": 0, 
+ "docstatus": 0, 
+ "doctype": "Report", 
+ "idx": 0, 
+ "is_standard": "Yes", 
+ "modified": "2017-05-10 08:09:32.292938", 
+ "modified_by": "Administrator", 
+ "module": "Switsol AG", 
+ "name": "Special Report", 
+ "owner": "Administrator", 
+ "ref_doctype": "Quotation", 
+ "report_name": "Special Report", 
+ "report_type": "Script Report"
+}

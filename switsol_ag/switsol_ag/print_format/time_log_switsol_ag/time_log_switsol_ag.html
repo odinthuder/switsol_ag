@@ -1,0 +1,136 @@
+<div>
+	<h4>{{ _(doc.doctype) }}</h4>
+</div>
+{% set sales_order_name = frappe.db.get_value("Project", doc.project, "sales_order") %}
+{% set sales_order = frappe.get_doc("Sales Order", sales_order_name) %}
+<div class="row" data-fieldname="customer" data-fieldtype="Data">
+	<div class="col-xs-3 text-left" style="margin-bottom:5px;">
+		{{ sales_order.customer }}
+	</div>
+</div>
+<div class="row" data-fieldname="sales_order" data-fieldtype="Data">
+	<div class="col-xs-3 text-left">
+		<label style="font-weight:normal;">
+			{{ _("Sales Order Number") }}:
+		</label>
+	</div>
+	<div class="col-xs-3 value">
+		{{ sales_order.get_formatted("name", sales_order) }}
+	</div>
+</div>
+{% if sales_order.target %}
+	<div class="row" data-fieldname="dossier_number" data-fieldtype="Data">
+		<div class="col-xs-3 text-left">
+			<label style="font-weight:normal;">
+				{{ _("Dossier Number") }}:
+			</label>
+		</div>
+	<div class="col-xs-3 value">
+		{{ sales_order.get_formatted("target", sales_order) }}
+	</div>
+</div>
+{% endif %}
+{% if sales_order.target or sales_order.object_title %}
+	<div class="row" data-fieldname="target" data-fieldtype="Data">
+		<div class="col-xs-3 text-left">
+			<label style="font-weight:normal;">
+				{{ _("Target") }}:
+			</label>
+		</div>
+		<div class="col-xs-3 value">
+		{% if sales_order.object_title %}
+			{{ sales_order.get_formatted("object_title", sales_order) }}<br>
+		{% endif %}
+		{% if sales_order.target %}
+			{{ frappe.get_doc("Target", sales_order.target).get_display() }}
+		{% endif %}
+		</div>
+	</div>
+{% endif %}
+{% if doc.time_logs %}
+	{% set data = doc.get("time_logs")[0:] %}
+	{% if data %}
+		<br>
+		<div data-fieldname="time_logs" data-fieldtype="Table">
+		<table class="table table-bordered table-condensed">
+			<thead>
+				<tr>
+					<th>{{ _("Employee") }}</th>
+					<th>{{ _("Work Type") }}</th>
+					<th>{{ _("Based Approach") }}</th>
+					<th>{{ _("Date/Time") }}</th>
+					<th>{{ _("Hours") }}</th>
+					<th>{{ _("Time Of Day") }}</th>
+					<th>{{ _("Expense Claim") }}</th>
+					<th>{{ _("Activity") }}</th>
+					<th>{{ _("Note") }}</th>
+					<th>{{ _("Total") }}</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for d in data %}
+					{% set time_log = frappe.get_doc("Time Log", d.time_log) %}
+					<tr>
+						<td>
+							<div class="value">
+								{{ frappe.db.get_value("Employee", time_log.employee, "employee_name") }}
+							</div>
+						</td>
+						<td>
+							<div class="value">
+								{{ time_log.get_formatted("activity_type", time_log) }}
+							</div>
+						</td>
+						<td>
+							<div class="value">
+								{{ time_log.get_formatted("billing_rate", time_log) }}
+							</div>
+						</td>
+						<td>
+							<div class="value">
+								{{ time_log.get_formatted("from_time", time_log) }} - {{ time_log.get_formatted("to_time", time_log) }}
+							</div>
+						</td>
+						<td>
+							<div class="value">
+								{{ time_log.get_formatted("hours", time_log) }}
+							</div>
+						</td>
+						<td></td>
+						<td>
+							<div class="value">
+								{% if time_log.task %}
+									{{ frappe.db.get_value("Task", time_log.task, "total_expense_claim") }}
+								{% endif %}
+							</div>
+						</td>
+						<td>
+							<div class="value">
+								{{ time_log.get_formatted("activity", time_log) }}
+							</div>
+						</td>
+						<td>
+							<div class="value">
+								{{ time_log.get_formatted("note", time_log) }}
+							</div>
+						</td>
+						<td>
+							<div class="value">
+								{{ time_log.get_formatted("billing_amount", time_log) }}
+							</div>
+						</td>
+					</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</div>
+{% endif %}
+{% endif %}
+<div class="row">
+	<div class="col-xs-4 col-xs-offset-6 text-left">
+		<label>{{ _("Total Project Cost") }}</label>
+	</div>
+	<div class="col-xs-2 value text-right">
+		<strong>CHF {{ doc.get_formatted("total_billing_amount", doc) }}</strong>
+	</div>
+</div>

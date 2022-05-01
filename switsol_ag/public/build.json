@@ -1,0 +1,27 @@
+{
+	"css/switsol_ag.min.css": [
+		"public/css/switsol_ag.css"
+	],
+	"js/switsol_ag.min.js": [
+		"public/js/conf.js",
+		"public/js/print_layout.html",
+		"public/js/upload.html"
+	],
+	"js/switsol_ag-web.min.js": [
+		"public/js/website.js"
+	],
+	"js/switsol_ag-form.min.js": [
+		"public/js/quick_entry.js",
+		"public/js/grid_body.html",
+		"public/js/grid.js"
+	],
+	"js/switol_ag-report.min.js": [
+		"public/js/reportview.js"
+	],
+	"js/switsol_ag-list.min.js": [
+		"public/js/list_item_main.html"
+	],
+	"js/switsol_ag-desk.min.js": [
+		"public/js/desk.js"
+	]
+}

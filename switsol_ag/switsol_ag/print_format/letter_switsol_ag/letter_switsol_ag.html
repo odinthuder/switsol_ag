@@ -1,0 +1,163 @@
+<div id="header-html">
+	<div class="letter-head">
+		{{ frappe.render_template(frappe.db.get_value("Letter Head", "Standard", "content"), {"doc": doc}) }}
+	</div>
+</div>
+<div class="visible-pdf" id="footer-html">
+	<div class="footer" style="margin-left: 5mm;">
+		<body style="font-family: Arial, sans-serif; font-size: 8pt;">
+			<section style="line-height: 1 !important; font-size: 8pt;">
+				{{ frappe.render_template(frappe.db.get_value("Letter Head", "Standard", "footer"), {"doc": doc}) }}
+			</section>
+		</body>
+	</div>
+</div>
+<div class="page-sizes">
+<div class="row" id="contact_details">
+	<div class="col-xs-8 text-left" style="font-size: 10pt; padding-top: 8mm; line-height: 1.3;">
+		{% if not doc.contact_person %}
+			{% set greeting = frappe.db.get_value("Customer", doc.customer, "greeting") %}
+			{% if greeting %}
+				{{ _(greeting) }}<br>
+			{% endif %}
+		{% endif %}
+		{{ doc.customer_name }}<br>
+		{% if doc.contact_person %}
+			{{ doc.contact_display }}<br>
+		{% endif %}
+		{% if doc.customer_address %}
+			{% set address_line1 = frappe.db.get_value("Address", doc.customer_address, "address_line1") %}
+			{% if address_line1 %}{{ address_line1 }}<br>{% endif%}
+			{% set address_line2 = frappe.db.get_value("Address", doc.customer_address, "address_line2") %}
+			{% if address_line2 %}{{ address_line2 }}<br>{% endif%}
+			{% set address_line3 = frappe.db.get_value("Address", doc.customer_address, "address_line3") %}
+			{% if address_line3 %}{{ address_line3 }}<br>{% endif%}
+			{% set address_line4 = frappe.db.get_value("Address", doc.customer_address, "address_line4") %}
+			{% if address_line4 %}{{ address_line4 }}<br>{% endif%}
+			{% set country = frappe.db.get_value("Address", doc.customer_address, "country") %}
+			{{ frappe.db.get_value("Country", country, "code") }}-{{ frappe.db.get_value("Address", doc.customer_address, "postal_code") }} 
+			{{ frappe.db.get_value("Address", doc.customer_address, "town") }}
+			{% if not address_line1 %}<br>{% endif%}
+			{% if not address_line2 %}<br>{% endif%}
+			{% if not address_line3 %}<br>{% endif%}
+			{% if not address_line4 %}<br>{% endif%}
+		{% else %}
+			<br>
+			<br>
+			<br>
+			<br>
+		{% endif %}
+		{% if not doc.contact_person %}<br>{% endif %}
+		<div class="date" style="padding-top: 20mm; font-size: 10pt;">
+			{{ frappe.utils.formatdate(doc.sending_date, "dd. MMMM Y") }}
+		</div>
+	</div>
+</div>
+{% if doc.subject %}
+	<div class="main-info" style="margin-right: 8px;">
+		<h4> {{ doc.subject }} </h4>
+	</div>
+{% endif %}
+{% if doc.contact_greeting %}
+	<div class="same-page additional-info" style="margin-top: -6pt; margin-bottom: 12pt; margin-right: 8px;">
+		{{ doc.contact_greeting }}
+	</div>
+{% endif %}
+{% if doc.body_text %}
+	<div class="same-page additional-info" style="margin-bottom: 12pt; margin-right: 8px;">
+		{{ doc.body_text }}
+	</div>
+{% endif %}
+{% if doc.greeting_text %}
+	<div class="same-page additional-info" style="margin-bottom: 11pt; margin-right: 8px;">
+		{{ doc.greeting_text }}
+	</div>
+{% endif %}
+{% if doc.employee_signature and doc.chief_signature %}
+<div class="row additional-info" style="page-break-inside: avoid !important;">
+	<div class="col-xs-6">
+	{{ _("Kind Regards,") }}
+		{% if doc.add_signature %}
+			{% if doc.chief_signature_value %}
+				<p>
+					<img src="{{ doc.chief_signature_value }}" style="width: 150px; height:100px;">
+				</p>
+			{% else %}
+				<br><br><br>
+			{% endif %}
+			<br>
+			<span>
+				{{ frappe.db.get_value("User", doc.chief_signature, "full_name") }}
+			</span><br>
+			<span>
+				{{ frappe.db.get_value("Employee", {"user_id": doc.chief_signature}, "function")|default("", True) }}
+			</span>
+		</div>
+		<div class="col-xs-6">
+			<br>
+			{% if doc.employee_signature_value %}
+				<p>
+					<img src="{{ doc.employee_signature_value }}" style="width: 150px; height: 100px;">
+					<br>
+				</p>
+			{% elif doc.chief_signature_value %}
+				<p style="margin-top: 250 !important;"><br></p><br><br><br><br><br>
+			{% else %}
+				<br><br>
+			{% endif %}
+			<br>
+			<span>
+				{{ frappe.db.get_value("User", doc.employee_signature, "full_name") }}
+			</span><br>
+			<span>
+				{{ frappe.db.get_value("Employee", {"user_id": doc.employee_signature}, "function")|default("", True) }}
+			</span>
+		</div>
+		{% endif %}
+	</div>
+{% elif doc.chief_signature %}
+	<div class="row additional-info" style="page-break-inside: avoid !important;">
+		<div class="col-xs-6">
+			{{ _("Kind Regards,") }}
+			{% if doc.add_signature %}
+				{% if doc.chief_signature_value %}
+					<p>
+						<img src="{{ doc.chief_signature_value }}" style="width: 150px; height:100px;">
+					</p>
+				{% else %}
+					<br><br><br>
+				{% endif %}
+				<span>
+					{{ frappe.db.get_value("User", doc.chief_signature, "full_name") }}
+				</span><br>
+				<span>
+					{{ frappe.db.get_value("Employee", {"user_id": doc.chief_signature}, "function")|default("", True) }}
+				</span>
+			{% endif %}
+		</div>
+	</div>
+{% elif doc.employee_signature %}
+	<div class="row additional-info" style="page-break-inside: avoid !important;">
+		<div class="col-xs-6">
+			{{ _("Kind Regards,") }}
+			{% if doc.add_signature %}
+				{% if doc.employee_signature_value %}
+					<p>
+						<img src="{{ doc.employee_signature_value }}" style="width: 150px; height: 100px;">
+						<br>
+					</p>
+				{% else %}
+					<br><br><br>
+				{% endif %}
+				<span>
+					{{ frappe.db.get_value("User", doc.employee_signature, "full_name") }}
+				</span><br>
+				<span>
+					{{ frappe.db.get_value("Employee", {"user_id": doc.employee_signature}, "function")|default("", True) }}
+				</span>
+			{% endif %}
+		</div>
+	</div>
+</div>
+{% endif %}
+</div>

@@ -1,0 +1,215 @@
+<div id="header-html">
+{% if doc.letter_head %}
+	<div class="letter-head">
+		{{ frappe.render_template(frappe.db.get_value("Letter Head", doc.letter_head, "content"), {"doc": doc}) }}
+	</div>
+{% endif %}
+</div>
+{% if doc.letter_head %}
+	<div class="visible-pdf" id="footer-html">
+		<body style="font-family: Arial, sans-serif; font-size: 8pt;">
+			<section style="line-height: 1 !important;">
+				<div style="text-align: right !important;">
+					<span class="small page-number visible-pdf" style="line-height: 1 !important;">
+						{{ _("Page {0} of {1}").format('<span class="page"></span>', '<span class="topage"></span>') }}
+					</span>
+				</div>
+				{{ frappe.render_template(frappe.db.get_value("Letter Head", doc.letter_head, "footer"), {"doc": doc}) }}
+			</section>
+		</body>
+	</div>
+{% endif %}
+<div class="row">
+	<div class="col-xs-6 text-left">
+		<p>{{ _(frappe.db.get_value("Employee", doc.employee, "salutation")) }}</p>
+		<p>{{ doc.employee_name }}</p>
+		{% set address = frappe.db.get_value("Employee", doc.employee, "current_address") %}
+		{% if address %}
+			<p>{{ address.replace("n", "<p>") + "</p>"}}</p>
+		{% endif %}
+	</div>
+</div>
+<br>
+<div class="row">
+	<div class="col-xs-6 additional-info">
+		{% if doc.employee %}
+			<div style="line-height: 1.3;">
+				{{ doc.employee }}
+			</div>
+		{% endif %}
+		{% if doc.employee_name %}
+			<div style="line-height: 1.3;">
+				{{ doc.employee_name }}
+			</div>
+		{% endif %}
+		{% if doc.department %}
+			<div style="line-height: 1.3;">
+				{{ doc.department }}
+			</div>
+		{% endif %}
+		{% if doc.designation %}
+			<div style="line-height: 1.3;">
+				{{ doc.designation }}
+			</div>
+		{% endif %}
+		{% if doc.branch %}
+			<div style="line-height: 1.3;">
+				{{ doc.branch }}
+			</div>
+		{% endif %}
+		{% if doc.company %}
+			<div style="line-height: 1.3;">
+				{{ doc.company }}
+			</div>
+		{% endif %}
+	</div>
+	<div class="col-xs-6 additional-info">
+		{% if doc.fiscal_year %}
+			<div style="line-height: 1.3;">
+				{{ doc.fiscal_year }}
+			</div>
+		{% endif %}
+		{% if doc.month %}
+			<div style="line-height: 1.3;">
+				{{ doc.month }}
+			</div>
+		{% endif %}
+		{% if doc.total_days_in_month %}
+			<div style="line-height: 1.3;">
+				{{ doc.total_days_in_month }}
+			</div>
+		{% endif %}
+		{% if doc.leave_without_pay %}
+			<div style="line-height: 1.3;">
+				{{ doc.leave_without_pay }}
+			</div>
+		{% endif %}
+		{% if doc.bank_name %}
+			<div style="line-height: 1.3;">
+				{{ doc.bank_name }}
+			</div>
+		{% endif %}
+		{% if doc.bank_account_no %}
+			<div style="line-height: 1.3;">
+				{{ doc.bank_account_no }}
+			</div>
+		{% endif %}
+	</div>
+</div>
+<div class="row">
+	<div class="col-xs-6 column-break">
+		<div>
+			<label>{{ _("Earnings") }}</label>
+		</div>
+		<div data-fieldname="earnings" data-fieldtype="Table">
+			<table class="table table-bordered table-condensed">
+				<thead>
+					<tr>
+						<th style="width: 40px" class="table-sr">{{ _("Sr") }}</th>
+						<th style="width: 150px;" data-fieldname="earnings" data-fieldtype="Table">{{ _("Type") }}</th>
+						<th style="width: 80px;" class="text-right" data-fieldname="earnings" data-fieldtype="Table">{{ _("Amount") }}</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% set data = doc.get("earnings") %}
+					{% for d in data %}
+						<tr>
+							<td class="table-sr">
+								{{ d.idx }}
+							</td>
+							<td>
+								<div class="value">
+									{{ d.salary_component }}
+								</div>
+							</td>
+							<td class="text-right">
+								<div class="value">
+									{{ d.get_formatted("amount", doc) }}
+								</div>
+							</td>
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+	{% if doc.get("deductions ") %}
+	<div class="col-xs-6 column-break">
+		<div>
+			<label>{{ _("Deductions") }}</label>
+		</div>
+		<div data-fieldname="deductions" data-fieldtype="Table">
+			<table class="table table-bordered table-condensed">
+				<thead>
+					<tr>
+						<th style="width: 40px" class="table-sr">{{ _("Sr") }}</th>
+						<th style="width: 150px;" data-fieldname="deductions" data-fieldtype="Table">{{ _("Type") }}</th>
+						<th style="width: 80px;" class="text-right" data-fieldname="deductions" data-fieldtype="Table">{{ _("Amount") }}</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% set data = doc.get("deductions") %}
+					{% for d in data %}
+						<tr>
+							<td class="table-sr">
+								{{ d.idx }}
+							</td>
+							<td>
+								<div class="value">
+									{{ d.salary_component }}
+								</div>
+							</td>
+							<td class="text-right">
+								<div class="value">
+									{{ d.amount }}
+								</div>
+							</td>
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+	{% endif %}
+</div>
+<div class="row">
+	<div class="col-xs-6 additional-info">
+	</div>
+	<div class="col-xs-6 additional-info">
+		{% if doc.arrear_amount %}
+			<div style="line-height: 1.3;">
+				{{ doc.arrear_amount }}
+			</div>
+		{% endif %}
+		{% if doc.leave_encashment_amount %}
+			<div style="line-height: 1.3;">
+				{{ doc.leave_encashment_amount }}
+			</div>
+		{% endif %}
+		{% if doc.gross_pay %}
+			<div style="line-height: 1.3;">
+				{{ doc.gross_pay }}
+			</div>
+		{% endif %}
+		{% if doc.leave_without_pay %}
+			<div style="line-height: 1.3;">
+				{{ doc.leave_without_pay }}
+			</div>
+		{% endif %}
+		{% if doc.total_deduction %}
+			<div style="line-height: 1.3;">
+				{{ doc.total_deduction }}
+			</div>
+		{% endif %}
+		{% if doc.net_pay %}
+			<div style="line-height: 1.3;">
+				{{ doc.net_pay }}
+			</div>
+		{% endif %}
+		{% if doc.rounded_total %}
+			<div style="line-height: 1.3;">
+				{{ doc.rounded_total }}
+			</div>
+		{% endif %}
+	</div>
+</div>

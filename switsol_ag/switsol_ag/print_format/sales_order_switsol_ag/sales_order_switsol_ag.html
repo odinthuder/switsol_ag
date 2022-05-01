@@ -1,0 +1,1439 @@
+{% if doc.company == "Gilgen Storen AG" %}
+	<div id="header-html">
+	{% if doc.letter_head %}
+		<div class="letter-head">
+			{{ frappe.render_template(frappe.db.get_value("Letter Head", doc.letter_head, "content"), {"doc": doc}) }}
+		</div>
+	{% endif %}
+	</div>
+	{% if doc.letter_head %}
+		<div class="visible-pdf" id="footer-html">
+		<div class="footer" style="margin-left: 5mm;">
+			<body style="font-family: Arial, sans-serif; font-size: 8pt;">
+				<section style="line-height: 1 !important; font-size: 8pt;">
+					{% set footer = frappe.db.get_value("Letter Head", doc.letter_head, "footer") %}
+					{% if footer %}
+						{{ frappe.render_template(footer, {"doc": doc}) }}
+					{% endif %}
+					<div style="text-align: right !important;">
+						<span class="small page-number visible-pdf" style="line-height: 1 !important;">
+							{{ _("Page {0} of {1}").format('<span class="page"></span>', '<span class="topage"></span>') }}
+						</span>
+					</div>
+				</section>
+			</body>
+		</div>
+		</div>
+	{% endif %}
+	<div class="page-sizes" style="line-height: 1;">
+		{% if doc.company_address_name %}
+			<div class="row" id="contact_details">
+				<div class="col-xs-8 text-left" style="font-size: 10pt; padding-top: 18mm; line-height: 1;">
+					{{ doc.company_address_name }}<br>
+					{% set contact_name = frappe.db.get_value("Contact",{"is_primary_contact": 1, "customer": doc.company_name}, ["first_name","last_name", "gender"]) %}
+					{% if contact_name[0] %}
+						{{ contact_name[0] }} 
+					{% endif %}
+					{% if contact_name[1] %}
+						{{ contact_name[1] }}<br>
+					{% endif %}
+					{% if doc.company_address_name %}
+						{% set address_line1 = frappe.db.get_value("Address", doc.company_address_name, "address_line1") %}
+						{% if address_line1 %}{{ address_line1 }}<br>{% endif%}
+						{% set address_line2 = frappe.db.get_value("Address", doc.company_address_name, "address_line2") %}
+						{% if address_line2 %}{{ address_line2 }}<br>{% endif%}
+						{% set address_line3 = frappe.db.get_value("Address", doc.company_address_name, "address_line3") %}
+						{% if address_line3 %}{{ address_line3 }}<br>{% endif%}
+						{% set address_line4 = frappe.db.get_value("Address", doc.company_address_name, "address_line4") %}
+						{% if address_line4 %}{{ address_line4 }}<br>{% endif%}
+						{% set country = frappe.db.get_value("Address", doc.company_address_name, "country") %}
+						{{ frappe.db.get_value("Country", country, "code")}}{% set postal_code = frappe.db.get_value("Address", doc.company_address_name, "postal_code") %}{% if postal_code %}{{_("-")}}{{ postal_code }}{% endif %} 
+						{% set town = frappe.db.get_value("Address", doc.company_address_name, "town") %}
+						{% if town %}{{ town }}{% endif %}
+						{% if not address_line1 %}<br>{% endif %}
+						{% if not address_line2 %}<br>{% endif %}
+						{% if not address_line3 %}<br>{% endif %}
+						{% if not address_line4 %}<br>{% endif %}
+					{% else %}
+						<br>
+						<br>
+						<br>
+						<br>
+					{% endif %}
+					{% if not doc.contact_person %}<br>{% endif %}
+				</div>
+				<div class="col-xs-4 staff-member" style="padding-top: 12mm; margin-left: -4mm;">
+					{% if doc.clerk_name %}
+						<div class="staff-name">
+							{{ frappe.db.get_value("Employee", {"user_id": doc.clerk_name}, "employee_name") }}
+						</div>
+						<div class="staff-function">
+							<address style="margin-right: -10mm;">
+								{% set phone = frappe.db.get_value("Employee", {"user_id": doc.clerk_name}, "phone_office_direct") %}
+								{% if phone%}{{ "D: " + phone }}<br>{% endif %}
+								{% set mobile = frappe.db.get_value("Employee", {"user_id": doc.clerk_name}, "natel_work") %}
+								{% if mobile %}{{ "M: " + mobile }}<br>{% endif %}
+								{% set email = frappe.db.get_value("Employee", {"user_id": doc.clerk_name}, "company_email") %}
+								{% if email %}{{ "@: " + email }}{% endif %}
+							</address>
+						</div>
+					{% else %}
+						<div class="staff-name">
+							{{ frappe.db.get_value("Employee", {"user_id": doc.chief_signature}, "employee_name") }}
+						</div>
+						<div class="staff-function">
+							<address style="margin-right: -10mm;">
+								{% set phone = frappe.db.get_value("Employee", {"user_id": doc.chief_signature}, "phone_office_direct") %}
+								{% if phone %}{{ "D: " + phone }}<br>{% endif %}
+								{% set mobile = frappe.db.get_value("Employee", {"user_id": doc.chief_signature}, "natel_work") %}
+								{% if mobile %}{{ "M: " + mobile }}<br>{% endif %}
+								{% set email = frappe.db.get_value("Employee", {"user_id": doc.chief_signature}, "company_email") %}
+								{% if email %}{{ "@: " + email }}{% endif %}
+							</address>
+						</div>
+					{% endif %}
+				</div>
+			</div>
+			<div class="page-break"></div>
+		{% endif %}
+		<div class="row" id="contact_details">
+			<div class="col-xs-8 text-left" style="font-size: 10pt; padding-top: 18mm; line-height: 1;">
+				{% if not doc.contact_person %}
+					{% set greeting = frappe.db.get_value("Customer", doc.customer, "greeting") %}
+					{% if greeting %}
+						{{ _(greeting) }}<br>
+					{% endif %}
+				{% endif %}
+				{{ doc.customer_name }}<br>
+				{% if doc.contact_person %}
+					{{ doc.contact_display }}<br>
+				{% endif %}
+				{% if doc.customer_address %}
+					{% set address_line1 = frappe.db.get_value("Address", doc.customer_address, "address_line1") %}
+					{% if address_line1 %}{{ address_line1 }}<br>{% endif%}
+					{% set address_line2 = frappe.db.get_value("Address", doc.customer_address, "address_line2") %}
+					{% if address_line2 %}{{ address_line2 }}<br>{% endif%}
+					{% set address_line3 = frappe.db.get_value("Address", doc.customer_address, "address_line3") %}
+					{% if address_line3 %}{{ address_line3 }}<br>{% endif%}
+					{% set address_line4 = frappe.db.get_value("Address", doc.customer_address, "address_line4") %}
+					{% if address_line4 %}{{ address_line4 }}<br>{% endif%}
+					{% set country = frappe.db.get_value("Address", doc.customer_address, "country") %}
+					{{ frappe.db.get_value("Country", country, "code") }}{% set postal_code = frappe.db.get_value("Address", doc.customer_address, "postal_code") %}{% if postal_code %}{{_("-")}}{{postal_code}}{% endif %} 
+					{% set town = frappe.db.get_value("Address", doc.customer_address, "town") %}{% if town %}{{ town }}{% endif %}
+					{% if not address_line1 %}<br>{% endif%}
+					{% if not address_line2 %}<br>{% endif%}
+					{% if not address_line3 %}<br>{% endif%}
+					{% if not address_line4 %}<br>{% endif%}
+				{% else %}
+					<br>
+					<br>
+					<br>
+					<br>
+				{% endif %}
+				{% if not doc.contact_person %}<br>{% endif %}
+				<div class="date" style="padding-top: 20mm; font-size: 10pt;">
+					{{ frappe.utils.formatdate(doc.sending_date, "dd. MMMM Y") }}
+				</div>
+			</div>
+			<div class="col-xs-4 staff-member" style="padding-top: 12mm; margin-left: -4mm;">
+				{% if doc.clerk_name %}
+					<div class="staff-name">
+						{{ frappe.db.get_value("Employee", {"user_id": doc.clerk_name }, "employee_name") }}
+					</div>
+					<div class="staff-function">
+						<address style="margin-right: -10mm;">
+							{% set phone = frappe.db.get_value("Employee", {"user_id": doc.clerk_name}, "phone_office_direct") %}
+							{% if phone%}{{ "D: " + phone }}<br>{% endif %}
+							{% set mobile = frappe.db.get_value("Employee", {"user_id": doc.clerk_name}, "natel_work") %}
+							{% if mobile %}{{ "M: " + mobile }}<br>{% endif %}
+							{% set email = frappe.db.get_value("Employee", {"user_id": doc.clerk_name}, "company_email") %}
+							{% if email %}{{ "@: " + email }}{% endif %}
+						</address>
+					</div>
+				{% else %}
+					<div class="staff-name">
+						{{ frappe.db.get_value("Employee", {"user_id": doc.chief_signature }, "employee_name") }}
+					</div>
+					<div class="staff-function">
+						<address style="margin-right: -10mm;">
+							{% set phone = frappe.db.get_value("Employee", {"user_id": doc.chief_signature}, "phone_office_direct") %}
+							{% if phone %}{{ "D: " + phone }}<br>{% endif %}
+							{% set mobile = frappe.db.get_value("Employee", {"user_id": doc.chief_signature}, "natel_work") %}
+							{% if mobile %}{{ "M: " + mobile }}<br>{% endif %}
+							{% set email = frappe.db.get_value("Employee", {"user_id": doc.chief_signature}, "company_email") %}
+							{% if email %}{{ "@: " + email }}{% endif %}
+						</address>
+					</div>
+				{% endif %}
+			</div>
+		</div>
+		<div class="text-left main-info" style="line-height: 1 !important;">
+			<h4>{{ _(doc.doctype) }} {{ doc.name }}<br>
+				{% if doc.offer_content%}
+					{{ doc.offer_content }}
+				{% endif %}
+			</h4>
+		</div>
+		<div class="row" style="margin-bottom: 12pt; margin-right: 8px;">
+			<div class="col-xs-6 additional-info" style="line-height: 1.5 !important;">
+				<div class="row" data-fieldname="transaction_date" data-fieldtype="Date">
+					<div class="col-xs-5 text-left">
+						<label style="margin-bottom: 0 !important;">{{ _("Sales Order Date") }}</label>
+					</div>
+					<div class="col-xs-7 value">
+						{{ doc.get_formatted("transaction_date", doc) }}
+					</div>
+				</div>
+				{% if doc.reference_number %}
+					<div class="row" data-fieldname="reference_number" data-fieldtype="Data">
+						<div class="col-xs-5 text-left">
+							<label style="margin-bottom: 0 !important;">{{ _("Reference Number") }}</label>
+						</div>
+						<div class="col-xs-7 value">
+							{{ doc.get_formatted("reference_number", doc) }}
+						</div>
+					</div>
+				{% endif %}
+				{% if doc.quotation_name %}
+					<div class="row" data-fieldname="quotation_name" data-fieldtype="Data">
+						<div class="col-xs-5 text-left">
+							<label style="margin-bottom: 0 !important;">{{ _("Quotation Number") }}</label>
+						</div>
+						<div class="col-xs-7 value">
+							{{ doc.quotation_name }}
+						</div>
+					</div>
+				{% endif %}
+				{% if doc.owner_name %}
+					<div class="row" data-fieldname="object_number" data-fieldtype="Data" style="margin-bottom: 2mm !important; margin-top: 1mm !important;">
+						<div class="col-xs-5 text-left">
+							<label style="margin-bottom: 0 !important;">{{ _("Owner") }}</label>
+						</div>
+						<div class="col-xs-7 value" style="line-height: 1 !important;">
+							{{ doc.get_formatted("owner_name", doc) }}
+						</div>
+					</div>
+				{% endif %}
+				{% if doc.object_number %}
+					<div class="row" data-fieldname="object_number" data-fieldtype="Data">
+						<div class="col-xs-5 text-left">
+							<label style="margin-bottom: 0 !important;">{{ _("Object") }}</label>
+						</div>
+						<div class="col-xs-7 value" style="line-height: 1 !important;">
+							{{ doc.get_formatted("object_number", doc) }}
+						</div>
+					</div>
+				{% endif %}
+				{% if doc.contact_start_date %}
+					<div class="row" data-fieldname="contact_start_date" data-fieldtype="Date">
+						<div class="col-xs-5 text-left">
+							<label style="margin-bottom: 0 !important;">{{ _("Contract Start Date") }}</label>
+						</div>
+						<div class="col-xs-7 value">{{ doc.get_formatted("contact_start_date", doc) }}</div>
+					</div>
+				{% endif %}
+				{% if doc.contact_end_date %}
+					<div class="row" data-fieldname="contact_end_date" data-fieldtype="Date">
+						<div class="col-xs-5 text-left">
+							<label style="margin-bottom: 0 !important;">{{ _("Contract End Date") }}</label>
+						</div>
+						<div class="col-xs-7 value">{{ doc.get_formatted("contact_end_date", doc) }}</div>
+					</div>
+				{% endif %}
+			</div>
+			<div class="col-xs-6 additional-info" style="line-height: 1.5 !important;">
+				{% if doc.client_order_number %}
+					<div class="row" data-fieldname="client_order_number" data-fieldtype="Data">
+						<div class="col-xs-5 text-left">
+							<label style="margin-bottom: 0 !important;">{{ _("Client Order Number") }}</label>
+						</div>
+						<div class="col-xs-7 value">{{ doc.get_formatted("client_order_number", doc) }}</div>
+					</div>
+				{% endif %}
+				{% if doc.client_contract_number %}
+					<div class="row" data-fieldname="client_contract_number" data-fieldtype="Data">
+						<div class="col-xs-5 text-left">
+							<label style="margin-bottom: 0 !important;">{{ _("Client Contract Number") }}</label>
+						</div>
+						<div class="col-xs-7 value">{{ doc.get_formatted("client_contract_number", doc) }}</div>
+					</div>
+				{% endif %}
+				{% if doc.client_project_number %}
+					<div class="row" data-fieldname="client_project_number" data-fieldtype="Data">
+						<div class="col-xs-5 text-left">
+							<label style="margin-bottom: 0 !important;">{{ _("Client Project Number") }}</label>
+						</div>
+						<div class="col-xs-7 value">{{ doc.get_formatted("client_project_number", doc) }}</div>
+					</div>
+				{% endif %}
+				{% if doc.client_reference %}
+					<div class="row" data-fieldname="client_reference" data-fieldtype="Data">
+						<div class="col-xs-5 text-left">
+							<label style="margin-bottom: 0 !important;">{{ _("Client Reference") }}</label>
+						</div>
+						<div class="col-xs-7 value">
+							{{ doc.get_formatted("client_reference", doc) }}
+						</div>
+					</div>
+				{% endif %}
+				{% if doc.client_order %}
+					<div class="row" data-fieldname="client_order" data-fieldtype="Data">
+						<div class="col-xs-5 text-left">
+							<label style="margin-bottom: 0 !important;">{{ _("Your Order") }}</label>
+						</div>
+						<div class="col-xs-7 value">
+							{{ doc.get_formatted("client_order", doc) }}
+						</div>
+					</div>
+				{% endif %}
+				{% if doc.client_end_customer %}
+					<div class="row" data-fieldname="client_reference" data-fieldtype="Data">
+						<div class="col-xs-5 text-left">
+							<label style="margin-bottom: 0 !important;">{{ _("Client End Customer") }}</label>
+						</div>
+						<div class="col-xs-7 value">{{ doc.get_formatted("client_end_customer", doc) }}</div>
+					</div>
+				{% endif %}
+				{% if doc.client_contact_person %}
+					<div class="row" data-fieldname="client_contact_person" data-fieldtype="Data">
+						<div class="col-xs-5 text-left">
+							<label style="margin-bottom: 0 !important;">{{ _("Client Contact Person") }}</label>
+						</div>
+						<div class="col-xs-7 value">{{ doc.get_formatted("client_contact_person", doc) }}</div>
+					</div>
+				{% endif %}
+			</div>
+		</div>
+		{% if doc.contact_greeting %}
+			<div class="additional-info" style="margin-bottom: 12pt; margin-right: 8px; line-height: 1 !important;">
+				<br>{{ _(doc.contact_greeting) }}
+			</div>
+		{% endif %}
+		{% if doc.description_text %}
+			<div class="additional-info" style="margin-bottom: 12pt; margin-right: 8px; line-height: 1;">
+				{{ doc.description_text }}
+			</div>
+		{% endif %}
+		{% if doc.items_description1 %}
+			<div class="same-page additional-info" style="margin-bottom: 11pt; margin-right: 8px; line-height: 1 !important;">
+				{{ doc.items_description1 }}
+			</div>
+		{% endif %}
+		{% if doc.employee_signature and doc.chief_signature %}
+			<div class="row additional-info" style="page-break-inside: avoid !important; line-height: 1 !important;">
+				<div class="col-xs-6">
+					{{ _("Kind Regards,") }}
+					{% if doc.chief_signature_value %}
+						<p>
+							<img src="{{ doc.chief_signature_value }}" style="width: 150px; height:100px;">
+						</p>
+					{% else %}
+						<br><br><br>
+					{% endif %}
+					<br>
+					<span>
+						{{ frappe.db.get_value("User", doc.chief_signature, "full_name") }}
+					</span><br>
+					<span>
+						{{ frappe.db.get_value("Employee", {"user_id": doc.chief_signature}, "function")|default("", True) }}
+					</span>
+				</div>
+				<div class="col-xs-6">
+					<br>
+					{% if doc.employee_signature_value %}
+						<p>
+							<img src="{{ doc.employee_signature_value }}" style="width: 150px; height: 100px;">
+							<br>
+						</p>
+					{% elif doc.chief_signature_value %}
+						<p style="margin-top: 250 !important;"><br></p><br><br><br><br><br>
+					{% else %}
+						<br><br>
+					{% endif %}
+					<br>
+					<span>
+						{{ frappe.db.get_value("User", doc.employee_signature, "full_name") }}
+					</span><br>
+					<span>
+						{{ frappe.db.get_value("Employee", {"user_id": doc.employee_signature}, "function")|default("", True) }}
+					</span>
+				</div>
+			</div>
+		{% elif doc.chief_signature %}
+			<div class="row additional-info" style="page-break-inside: avoid !important; line-height: 1 !important;">
+				<div class="col-xs-6">
+					{{ _("Kind Regards,") }}
+					{% if doc.chief_signature_value %}
+						<p>
+							<img src="{{ doc.chief_signature_value }}" style="width: 150px; height:100px;">
+						</p>
+					{% else %}
+						<br><br><br>
+					{% endif %}
+					<span>
+						{{ frappe.db.get_value("User", doc.chief_signature, "full_name") }}
+					</span><br>
+					<span>
+						{{ frappe.db.get_value("Employee", {"user_id": doc.chief_signature}, "function")|default("", True) }}
+					</span>
+				</div>
+			</div>
+		{% elif doc.employee_signature %}
+			<div class="row additional-info" style="page-break-inside: avoid !important; line-height: 1 !important;">
+				<div class="col-xs-6">
+					{{ _("Kind Regards,") }}
+					{% if doc.employee_signature_value %}
+						<p>
+							<img src="{{ doc.employee_signature_value }}" style="width: 150px; height: 100px;">
+							<br>
+						</p>
+					{% else %}
+						<br><br><br>
+					{% endif %}
+					<span>
+						{{ frappe.db.get_value("User", doc.employee_signature, "full_name") }}
+					</span><br>
+					<span>
+						{{ frappe.db.get_value("Employee", {"user_id": doc.employee_signature}, "function")|default("", True) }}
+					</span>
+				</div>
+			</div>
+		{% endif %}
+		{% if doc.items %}
+			<div class="page-break"></div>
+			{% set data = doc.get("items") %}
+				<div data-fieldname="items additional-info" data-fieldtype="Table" style="line-height: 1;">
+				<table class="table table-bordered table-condensed additional-info" style="line-height: 1;">
+					<thead>
+						<tr>
+							<th style="width: 3%;" class="text-left">{{ _("Pos") }} </th>
+							<th style="width: 32%;" class="text-left">{{ _("Designation") }}</th>
+							<th style="width: 15%;" class="text-right">{{ _("Quantity") }}</th><th style="width: 15%;" class="text-right">{{ _("Rate") }}</th>
+							{% if doc.check_discount %}
+								<th style="width: 15%;" class="text-right">{{ _("Discount") }}</th>
+							{% endif %}
+							<th style="width: 25%;" class="text-right">{{ _("Amount in") }} {{doc.get_formatted("currency", doc)}}</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for d in data %}
+							<tr>
+								<td style="line-height: 1 !important;">{{ d.idx }}</td>
+								<td style="line-height: 1 !important;">
+									<span>{{ d.get_formatted("item_name", doc) }}</span>
+									{% if d.width_asl_size or d.width_hight_ht or d.width_hight_hl or d.location %}
+										<br>
+									{% endif %}
+									{% if d.width_asl_size %}
+									<br>
+										{{ d.width_asl_size }}
+									{% endif %}
+									{% if d.width_hight_ht %}
+									<br>
+										{{ d.width_hight_ht }}
+									{% endif %}
+									{% if d.width_hight_hl %}
+									<br>
+										{{ d.width_hight_hl }}
+									{% endif %}
+									{% if doc.taxes|length > 1 %}
+										<div>
+											<i>{{ _("(VAT  ")}}{{ d.item_tax_rate.split(":")[1][:-1] }}{{ ("%) ")}}</i>
+										</div>
+									{% endif %}
+								</td>
+								<td class="text-right">
+									<div class="value" style="line-height: 1 !important;">	{{ d.get_formatted("qty", doc) }} {{ d.stock_uom }}
+									</div>
+								</td>
+								<td class="text-right">
+									<div class="value" style="line-height: 1 !important;">
+										{{ d.get_formatted("rate", doc) }}
+									</div>
+								</td>
+								{% if doc.check_discount %}
+									<td class="text-right">
+										<div class="value" style="line-height: 1 !important;">
+											{{ d.get_formatted("discount_percentage", doc) }}
+										</div>
+									</td>
+								{% endif %}
+								<td class="text-right">
+									<div class="value" style="line-height: 1 !important;">
+										{{ d.get_formatted("amount", doc) }}
+									</div>
+									{% if doc.taxes|length > 1 %}
+									<br><br>
+									<div class="value" style="line-height: 1 !important;">
+										{{ d.item_tax_amount }}
+									</div>
+									{% endif %}
+								</td>
+							</tr>
+						{% endfor %}
+						{% if doc.discount_amount %}
+							<tr>
+								<td></td>
+								<td style="font-weight: bold; line-height: 1 !important;">{{ _("Total") }}</td>
+								<td></td>
+								<td></td>
+								{% if doc.check_discount %}<td></td>{% endif %}
+								<td class="text-right" style="font-weight: bold;">
+									<div class="value" style="line-height: 1 !important;">
+										{{ doc.get_formatted("total", doc) }}
+									</div>
+								</td>
+							</tr>
+						{% endif %}
+						{% if doc.discount_1_value %}
+							<tr>
+								<td></td>
+								<td style="line-height: 1 !important;">
+									{{ doc.get_formatted("discount_1_name", doc) }} ({{ doc.get_formatted("discount_1_value", doc) }})
+								</td>
+								<td></td>
+								<td></td>
+								{% if doc.check_discount %}<td></td>{% endif %}
+								<td class="text-right">
+									<div class="value" style="line-height: 1 !important;">
+										{{ doc.get_formatted("discount_1_rate", doc) }}
+									</div>
+								</td>
+							</tr>
+						{% endif %}
+						{% if doc.discount_2_value %}
+							<tr>
+								<td></td>
+								<td style="line-height: 1 !important;">
+									{{ doc.get_formatted("discount_2_name", doc) }} ({{ doc.get_formatted("discount_2_value", doc) }})
+								</td>
+								<td></td>
+								<td></td>
+								{% if doc.check_discount %}<td></td>{% endif %}
+								<td class="text-right">
+									<div class="value" style="line-height: 1 !important;">
+										{{ doc.get_formatted("discount_2_rate", doc) }}
+									</div>
+								</td>
+							</tr>
+						{% endif %}
+						{% if doc.discount_3_value %}
+							<tr>
+								<td></td>
+								<td style="line-height: 1 !important;">
+									{{ doc.get_formatted("discount_3_name", doc) }}
+								</td>
+								<td></td>
+								<td></td>
+								{% if doc.check_discount %}<td></td>{% endif %}
+								<td class="text-right">
+									<div class="value" style="line-height: 1 !important;">
+										{{ doc.get_formatted("discount_3_value", doc) }}
+									</div>
+								</td>
+							</tr>
+						{% endif %}
+						<tr>
+							<td style="border-top: 2px solid black !important;"></td>
+							<td style="line-height: 1 !important; border-top: 2px solid black !important;">
+								{{ _("Total (excl. VAT)") }}
+							</td>
+							<td style="border-top: 2px solid black !important;"></td>
+							<td style="border-top: 2px solid black !important;"></td>
+							{% if doc.check_discount %}
+								<td style="border-top: 2px solid black !important;"></td>
+							{% endif %}
+							<td class="text-right" style="border-top: 2px solid black !important;">
+								<div class="value" style="line-height: 1 !important;">
+									{{ doc.get_formatted("net_total", doc) }}
+								</div>
+							</td>
+						</tr>
+						{% if doc.taxes %}
+							{% set tax_data = doc.taxes %}
+							{% for i in tax_data %}
+								<tr>
+									<td></td>
+									<td style="line-height: 1 !important;">{{ _("VAT (")}}{{ i.rate }} {{("%)") }}</td>
+									<td></td>
+									<td></td>
+									{% if doc.check_discount %}
+										<td></td>
+									{% endif %}
+									<td class="text-right">
+										<div class="value" style="line-height: 1 !important;">
+											{{ i.get_formatted("tax_amount_after_discount_amount", doc) }}
+										</div>
+									</td>
+								</tr>
+							{% endfor %}
+						{% endif%}
+							<tr>
+								<td style="border-bottom: 3px solid black !important; border-top: 3px solid black !important;"></td>
+								<td style="font-weight: bold; border-bottom: 3px solid black !important; border-top: 3px solid black !important;">
+									{{ _("Total (incl. VAT) rounded") }}
+								</td>
+								<td style="border-bottom: 3px solid black !important; border-top: 3px solid black !important;"></td>
+								<td style="border-bottom: 3px solid black !important; border-top: 3px solid black !important;" ></td>
+								{% if doc.check_discount %}
+									<td style="border-bottom: 3px solid black !important; border-top: 3px solid black !important;"></td>
+								{% endif %}
+								<td class="text-right" style="font-weight: bold; border-bottom: 3px solid black !important; border-top: 3px solid black !important;">
+									<div class="value" style="line-height: 1 !important;">
+										{{ doc.get_formatted("rounded_total_enip", doc) }}
+									</div>
+								</td>
+							</tr>
+						{% if doc.get("partial_payment_1_name") and doc.get("partial_payment_1_value") %}
+							<tr>
+								<td></td>
+								{% if doc.check_discount %}
+									<td colspan="4" style="line-height: 1 !important;">
+								{% else %}
+									<td colspan="3" style="line-height: 1 !important;">
+								{% endif %}
+									{{ _("Account No.1") }} = {{ doc.get_formatted("partial_payment_1_value", doc) }}
+									{{ doc.get_formatted("partial_payment_1_name", doc) }}
+								</td>
+								<td style="line-height: 1 !important;" class="text-right">
+									{{ frappe.utils.get_percent_value(doc, "rounded_total_enip", "partial_payment_1_value") }}
+								</td>
+							</tr>
+						{% endif %}
+						{% if doc.get("partial_payment_2_name") and doc.get("partial_payment_2_value") %}
+							<tr>
+								<td></td>
+								{% if doc.check_discount %}
+									<td colspan="4" style="line-height: 1 !important;">
+								{% else %}
+									<td colspan="3" style="line-height: 1 !important;">
+								{% endif %}
+									{{ _("Account No.2") }} = {{ doc.get_formatted("partial_payment_2_value", doc) }} {{ doc.get_formatted("partial_payment_2_name", doc) }}
+								</td>
+								<td style="line-height: 1 !important;" class="text-right">
+									{{ frappe.utils.get_percent_value(doc, "rounded_total_enip", "partial_payment_2_value") }}
+								</td>
+							</tr>
+						{% endif %}
+						{% if doc.get("partial_payment_3_name") and doc.get("partial_payment_3_value") %}
+							<tr>
+								<td></td>
+								{% if doc.check_discount %}
+									<td colspan="4" style="line-height: 1 !important;">
+								{% else %}
+									<td colspan="3" style="line-height: 1 !important;">
+								{% endif %}
+									{{ _("Account No.3") }} = {{ doc.get_formatted("partial_payment_3_value", doc) }}
+									{{ doc.get_formatted("partial_payment_3_name", doc) }}
+								</td>
+								<td style="line-height: 1 !important;" class="text-right">
+									{{ frappe.utils.get_percent_value(doc, "rounded_total_enip", "partial_payment_3_value") }}
+								</td>
+							</tr>
+						{% endif %}
+						{% if doc.get("partial_payment_4_name") and doc.get("partial_payment_4_value") %}
+							<tr>
+								<td></td>
+								{% if doc.check_discount %}
+									<td colspan="4" style="line-height: 1 !important;">
+								{% else %}
+									<td colspan="3" style="line-height: 1 !important;">
+								{% endif %}
+									{{ _("Account No.4") }} = {{ doc.get_formatted("partial_payment_4_value", doc) }}
+									{{ doc.get_formatted("partial_payment_4_name", doc) }}
+								</td>
+								<td style="line-height: 1 !important;" class="text-right">
+									{{ frappe.utils.get_percent_value(doc, "rounded_total_enip", "partial_payment_4_value") }}
+								</td>
+							</tr>
+						{% endif %}
+					</tbody>
+				</table>
+			</div>
+		{% endif %}
+		{% if doc.greeting_text %}
+			<div class="additional-info" style="margin-bottom: 12pt; margin-right: 8px; line-height: 1 !important;">
+				{{ doc.greeting_text }}
+			</div>
+		{% endif %}
+		<div class="additional-info" style="margin-bottom: 12pt;">
+			{{ _("The Delivery Time is") }} {{ _(doc.delivery_period_data) }}<br>
+			{{ _("The Payment Deadline is") }} {{ doc.payment_condition }} {{ _("Days")}} {{ _("netto")}}
+		</div>
+		{% if doc.items %}
+			{% if doc.item_details %}
+			{% set data = doc.items %}
+				<div class="page-break"></div>
+				<div class="text-left additional-info">
+					<h4>{{ _("Details About Quotation") }}</h4>
+				</div>
+				<div data-fieldname="items" data-fieldtype="Table">
+					<table class="table table-bordered table-condensed additional-info">
+						<thead>
+							<tr>
+								<th style="width: 3%;">{{ _("Pos") }}</th>
+								<th style="width: 40%;">{{ _("Items") }}</th>
+								<th style="width: 35%;">{{ _("Description") }}</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for i in data %}
+								{% if i.show_in_details %}
+									<tr>
+										<td style="line-height: 1 !important;">{{ i.idx }}</td>
+										<td>
+											<div class="value" style="line-height: 1 !important;">
+												<div class="primary">
+													{{ i.item_name }}
+												{% if i.width_asl_size or i.width_hight_ht or i.width_hight_hl or i.location %}
+													<br>
+												{% endif %}
+												{% if i.width_asl_size %}
+												<br>
+													{{ _("Width & Asl size") }}:
+													<br>{{ i.width_asl_size }}
+												{% endif %}
+												{% if i.width_hight_ht %}
+												<br>
+													{{ _("Width & Hight (ht)") }}:
+													<br>{{ i.width_hight_ht }}
+												{% endif %}
+												{% if i.width_hight_hl %}
+												<br>
+													{{ _("Width & Hight (hl)") }}:
+													<br>{{ i.width_hight_hl }}
+												{% endif %}
+												{% if i.location %}
+												<br>
+													{{ _("Location") }}: {{ i.location }}
+												{% endif %}
+												</div>
+											</div>
+										</td>
+										<td>
+											<div class="value" style="line-height: 1 !important;">
+												{{ i.get_formatted("description", doc) }}
+											</div>
+										</td>
+									</tr>
+								{% endif %}
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			{% endif %}
+		{% endif %}
+		{% if doc.items_details_description %}
+			<div class="additional-info" style="margin-bottom: 12pt; margin-right: 8px; line-height: 1 !important;">
+				{{ doc.items_details_description }}
+			</div>
+		{% endif%}
+		{% if doc.terms %}
+			<div style="line-height: 1 !important;">{{ doc.terms }}</div>
+		{% endif%}
+	</div>
+{% else %}
+	<div id="header-html">
+	{% if doc.letter_head %}
+		<div class="letter-head">
+			{{ frappe.render_template(frappe.db.get_value("Letter Head", doc.letter_head, "content"), {"doc": doc}) }}
+		</div>
+	{% endif %}
+	</div>
+	{% if doc.letter_head %}
+		<div class="visible-pdf" id="footer-html">
+		<div class="footer" style="margin-right: 15mm; margin-left: 15mm;">
+			<body style="font-family: Arial, sans-serif; font-size: 8pt;">
+				<section style="line-height: 1 !important;">
+					<div style="text-align: center !important;">
+						<span class="small page-number visible-pdf" style="line-height: 1 !important;">
+							{{ _("Page {0} of {1}").format('<span class="page"></span>', '<span class="topage"></span>') }}
+						</span>
+					</div>
+					{% set footer = frappe.db.get_value("Letter Head", doc.letter_head, "footer") %}
+					{% if footer %}
+						{{ frappe.render_template(footer, {"doc": doc}) }}
+					{% endif %}
+				</section>
+			</body>
+		</div>
+		</div>
+	{% endif %}
+	<div class="page-sizes">
+	<div class="row" id="contact_details">
+		<div class="col-xs-8 text-left" style="font-size: 10pt; padding-top: 18mm; line-height: 1;">
+			{% if not doc.contact_person %}
+				{% set greeting = frappe.db.get_value("Customer", doc.customer, "greeting") %}
+				{% if greeting %}
+					{{ _(greeting) }}<br>
+				{% endif %}
+			{% endif %}
+			{{ doc.customer_name }}<br>
+			{% if doc.contact_person %}
+				{{ doc.contact_display }}<br>
+			{% endif %}
+			{% if doc.customer_address %}
+				{% set address_line1 = frappe.db.get_value("Address", doc.customer_address, "address_line1") %}
+				{% if address_line1 %}{{ address_line1 }}<br>{% endif%}
+				{% set address_line2 = frappe.db.get_value("Address", doc.customer_address, "address_line2") %}
+				{% if address_line2 %}{{ address_line2 }}<br>{% endif%}
+				{% set address_line3 = frappe.db.get_value("Address", doc.customer_address, "address_line3") %}
+				{% if address_line3 %}{{ address_line3 }}<br>{% endif%}
+				{% set address_line4 = frappe.db.get_value("Address", doc.customer_address, "address_line4") %}
+				{% if address_line4 %}{{ address_line4 }}<br>{% endif%}
+				{% set country = frappe.db.get_value("Address", doc.customer_address, "country") %}
+				{{ frappe.db.get_value("Country", country, "code") }}{% set postal_code = frappe.db.get_value("Address", doc.customer_address, "postal_code") %}{% if postal_code %}{{_("-")}}{{postal_code}}{% endif %} 
+				{% set town = frappe.db.get_value("Address", doc.customer_address, "town") %}{% if town %}{{ town }}{% endif %}
+				{% if not address_line1 %}<br>{% endif%}
+				{% if not address_line2 %}<br>{% endif%}
+				{% if not address_line3 %}<br>{% endif%}
+				{% if not address_line4 %}<br>{% endif%}
+			{% else %}
+				<br>
+				<br>
+				<br>
+				<br>
+			{% endif %}
+			{% if not doc.contact_person %}<br>{% endif %}
+			<div class="date" style="padding-top: 20mm; font-size: 10pt;">
+				{{ frappe.utils.formatdate(doc.sending_date, "dd. MMMM Y") }}
+			</div>
+			</div>
+		<div class="col-xs-4 staff-member" style="padding-top: 12mm; margin-left: -4mm;">
+			{% if doc.clerk_name %}
+				<div class="staff-name">
+					<strong>
+						{{ frappe.db.get_value("Employee", {"user_id": doc.clerk_name }, "employee_name") }}
+					</strong>
+				</div>
+				<div class="staff-function">
+					<span style="margin-top: 6mm;">
+						{{ frappe.db.get_value("Employee", {"user_id": doc.clerk_name}, "function") }}
+					</span>
+					<address>
+						{% set phone = frappe.db.get_value("Employee", {"user_id": doc.clerk_name}, "phone_office_direct") %}
+						{% if phone%}{{ "D: " + phone }}<br>{% endif %}
+						{% set mobile = frappe.db.get_value("Employee", {"user_id": doc.clerk_name}, "natel_work") %}
+						{% if mobile %}{{ "M: " + mobile }}<br>{% endif %}
+						{% set email = frappe.db.get_value("Employee", {"user_id": doc.clerk_name}, "company_email") %}
+						{% if email %}{{ "@: " + email }}{% endif %}
+					</address>
+				</div>
+			{% else %}
+				<div class="staff-name">
+					<strong>
+						{{ frappe.db.get_value("Employee", {"user_id": doc.chief_signature }, "employee_name") }}
+					</strong>
+				</div>
+				<div class="staff-function">
+					<span>
+						{{ frappe.db.get_value("Employee", {"user_id": doc.chief_signature}, "function") }}
+					</span>
+					<address>
+						{% set phone = frappe.db.get_value("Employee", {"user_id": doc.chief_signature}, "phone_office_direct") %}
+						{% if phone %}{{ "D: " + phone }}<br>{% endif %}
+						{% set mobile = frappe.db.get_value("Employee", {"user_id": doc.chief_signature}, "natel_work") %}
+						{% if mobile %}{{ "M: " + mobile }}<br>{% endif %}
+						{% set email = frappe.db.get_value("Employee", {"user_id": doc.chief_signature}, "company_email") %}
+						{% if email %}{{ "@: " + email }}{% endif %}
+					</address>
+				</div>
+			{% endif %}
+		</div>
+	</div>
+	<div class="text-left main-info">
+		<h4>{{ _(doc.doctype) }} {{ doc.name }}<br>
+			{% if doc.offer_content%}
+				({{ doc.offer_content }})
+			{% endif %}
+		</h4>
+	</div>
+	<div class="row" style="margin-bottom: 12pt; margin-right: 8px;">
+		<div class="col-xs-6 additional-info">
+			<div class="row" data-fieldname="transaction_date" data-fieldtype="Date">
+				<div class="col-xs-6 text-left">
+					<label>{{ _("Sales Order Date") }}</label>
+				</div>
+				<div class="col-xs-6 value">{{ doc.get_formatted("transaction_date", doc) }}</div>
+			</div>
+			{% if doc.reference_number %}
+				<div class="row" data-fieldname="quotation_name" data-fieldtype="Data">
+					<div class="col-xs-6 text-left">
+						<label>{{ _("Reference Number") }}</label>
+					</div>
+					<div class="col-xs-6 value">
+						{{ doc.get_formatted("reference_number", doc) }}
+					</div>
+				</div>
+			{% endif %}
+			{% if doc.quotation_name %}
+				<div class="row" data-fieldname="quotation_name" data-fieldtype="Data">
+					<div class="col-xs-6 text-left">
+						<label>{{ _("Quotation Number") }}</label>
+					</div>
+					<div class="col-xs-6 value">{{ doc.quotation_name }}</div>
+				</div>
+			{% endif %}
+			<div class="row" data-fieldname="sales_order_name" data-fieldtype="Data">
+				<div class="col-xs-6 text-left">
+					<label>{{ _("Sales Order Number") }}</label>
+				</div>
+				<div class="col-xs-6 value">{{ doc.get_formatted("name", doc) }}</div>
+			</div>
+			{% if doc.clerk_name %}
+				<div class="row" data-fieldname="clerk_name" data-fieldtype="Link">
+					<div class="col-xs-6 text-left">
+						<label>{{ _("Clerk") }}</label>
+					</div>
+					<div class="col-xs-6 value">{{ frappe.db.get_value("Employee", {"user_id": doc.clerk_name }, "employee_name") }}</div>
+				</div>
+			{% endif %}
+			{% if doc.customer_name %}
+				<div class="row" data-fieldname="customer_number" data-fieldtype="Link">
+					<div class="col-xs-6 text-left">
+						<label>{{ _("Customer Number") }}</label>
+					</div>
+					<div class="col-xs-6 value">{{ doc.get_formatted("customer", doc) }} </div>
+				</div>
+			{% endif %}
+			{% if doc.contact_start_date %}
+				<div class="row" data-fieldname="contact_start_date" data-fieldtype="Date">
+					<div class="col-xs-6 text-left">
+						<label>{{ _("Contract Start Date") }}</label>
+					</div>
+					<div class="col-xs-6 value">{{ doc.get_formatted("contact_start_date", doc) }}</div>
+				</div>
+			{% endif %}
+			{% if doc.contact_end_date %}
+				<div class="row" data-fieldname="contact_end_date" data-fieldtype="Date">
+					<div class="col-xs-6 text-left">
+						<label>{{ _("Contract End Date") }}</label>
+					</div>
+					<div class="col-xs-6 value">{{ doc.get_formatted("contact_end_date", doc) }}</div>
+				</div>
+			{% endif %}
+		</div>
+		<div class="col-xs-6 additional-info">
+			{% if doc.client_order_number %}
+				<div class="row" data-fieldname="client_order_number" data-fieldtype="Data">
+					<div class="col-xs-6 text-left">
+						<label>{{ _("Client Order Number") }}</label>
+					</div>
+					<div class="col-xs-6 value">{{ doc.get_formatted("client_order_number", doc) }}</div>
+				</div>
+			{% endif %}
+			{% if doc.client_contract_number %}
+				<div class="row" data-fieldname="client_contract_number" data-fieldtype="Data">
+					<div class="col-xs-6 text-left">
+						<label>{{ _("Client Contract Number") }}</label>
+					</div>
+					<div class="col-xs-6 value">{{ doc.get_formatted("client_contract_number", doc) }}</div>
+				</div>
+			{% endif %}
+			{% if doc.client_project_number %}
+				<div class="row" data-fieldname="client_project_number" data-fieldtype="Data">
+					<div class="col-xs-6 text-left">
+						<label>{{ _("Client Project Number") }}</label>
+					</div>
+					<div class="col-xs-6 value">{{ doc.get_formatted("client_project_number", doc) }}</div>
+				</div>
+			{% endif %}
+			{% if doc.client_reference %}
+				<div class="row" data-fieldname="client_reference" data-fieldtype="Data">
+					<div class="col-xs-6 text-left">
+						<label>{{ _("Client Reference") }}</label>
+					</div>
+					<div class="col-xs-6 value">{{ doc.get_formatted("client_reference", doc) }}</div>
+				</div>
+			{% endif %}
+			{% if doc.client_order %}
+				<div class="row" data-fieldname="client_order" data-fieldtype="Data">
+					<div class="col-xs-6 text-left">
+						<label>{{ _("Your Order") }}</label>
+					</div>
+					<div class="col-xs-6 value">{{ doc.get_formatted("client_order", doc) }}</div>
+				</div>
+			{% endif %}
+			{% if doc.client_end_customer %}
+				<div class="row" data-fieldname="client_reference" data-fieldtype="Data">
+					<div class="col-xs-6 text-left">
+						<label>{{ _("Client End Customer") }}</label>
+					</div>
+					<div class="col-xs-6 value">{{ doc.get_formatted("client_end_customer", doc) }}</div>
+				</div>
+			{% endif %}
+			{% if doc.client_contact_person %}
+				<div class="row" data-fieldname="client_contact_person" data-fieldtype="Data">
+					<div class="col-xs-6 text-left">
+						<label>{{ _("Client Contact Person") }}</label>
+					</div>
+					<div class="col-xs-6 value">{{ doc.get_formatted("client_contact_person", doc) }}</div>
+				</div>
+			{% endif %}
+		</div>
+	</div>
+	{% if doc.contact_greeting %}
+		<div class="additional-info" style="margin-bottom: 12pt; margin-right: 8px;">
+			<br>{{ _(doc.contact_greeting) }}
+		</div>
+	{% endif %}
+	{% if doc.description_text %}
+		<div class="additional-info" style="margin-bottom: 12pt; margin-right: 8px;">
+			{{ doc.description_text }}
+		</div>
+	{% endif %}
+	{% if doc.items_description1 %}
+		<div class="same-page additional-info" style="margin-bottom: 11pt; margin-right: 8px;">
+			{{ doc.items_description1 }}
+		</div>
+	{% endif %}
+	{% if doc.employee_signature and doc.chief_signature %}
+		<div class="row additional-info" style="page-break-inside: avoid !important;">
+			<div class="col-xs-6">
+				{{ _("Kind Regards,") }}
+				{% if doc.chief_signature_value %}
+					<p>
+						<img src="{{ doc.chief_signature_value }}" style="width: 150px; height:100px;">
+					</p>
+				{% else %}
+					<br><br><br>
+				{% endif %}
+				<br>
+				<span>
+					{{ frappe.db.get_value("User", doc.chief_signature, "full_name") }}
+				</span><br>
+				<span>
+					{{ frappe.db.get_value("Employee", {"user_id": doc.chief_signature}, "function")|default("", True) }}
+				</span>
+			</div>
+			<div class="col-xs-6">
+				<br>
+				{% if doc.employee_signature_value %}
+					<p>
+						<img src="{{ doc.employee_signature_value }}" style="width: 150px; height: 100px;">
+						<br>
+					</p>
+				{% elif doc.chief_signature_value %}
+					<p style="margin-top: 250 !important;"><br></p><br><br><br><br><br>
+				{% else %}
+					<br><br>
+				{% endif %}
+				<br>
+				<span>
+					{{ frappe.db.get_value("User", doc.employee_signature, "full_name") }}
+				</span><br>
+				<span>
+					{{ frappe.db.get_value("Employee", {"user_id": doc.employee_signature}, "function")|default("", True) }}
+				</span>
+			</div>
+		</div>
+	{% elif doc.chief_signature %}
+		<div class="row additional-info" style="page-break-inside: avoid !important;">
+			<div class="col-xs-6">
+				{{ _("Kind Regards,") }}
+				{% if doc.chief_signature_value %}
+					<p>
+						<img src="{{ doc.chief_signature_value }}" style="width: 150px; height:100px;">
+					</p>
+				{% else %}
+					<br><br><br>
+				{% endif %}
+				<span>
+					{{ frappe.db.get_value("User", doc.chief_signature, "full_name") }}
+				</span><br>
+				<span>
+					{{ frappe.db.get_value("Employee", {"user_id": doc.chief_signature}, "function")|default("", True) }}
+				</span>
+			</div>
+		</div>
+	{% elif doc.employee_signature %}
+		<div class="row additional-info" style="page-break-inside: avoid !important;">
+			<div class="col-xs-6">
+				{{ _("Kind Regards,") }}
+				{% if doc.employee_signature_value %}
+					<p>
+						<img src="{{ doc.employee_signature_value }}" style="width: 150px; height: 100px;">
+						<br>
+					</p>
+				{% else %}
+					<br><br><br>
+				{% endif %}
+				<span>
+					{{ frappe.db.get_value("User", doc.employee_signature, "full_name") }}
+				</span><br>
+				<span>
+					{{ frappe.db.get_value("Employee", {"user_id": doc.employee_signature}, "function")|default("", True) }}
+				</span>
+			</div>
+		</div>
+	{% endif %}
+	{% if doc.items %}
+		<div class="page-break"></div>
+		{% set data = doc.get("items") %}
+			<div data-fieldname="items additional-info" data-fieldtype="Table">
+			<table class="table table-bordered table-condensed additional-info">
+				<thead>
+					<tr>
+						<th style="width: 3%;" class="text-left">{{ _("Pos") }} </th>
+						<th style="width: 32%;" class="text-left">{{ _("Designation") }}</th>
+						<th style="width: 15%;" class="text-right">{{ _("Quantity") }}</th><th style="width: 15%;" class="text-right">{{ _("Rate") }}</th>
+						{% if doc.check_discount %}
+							<th style="width: 15%;" class="text-right">{{ _("Discount") }}</th>
+						{% endif %}
+						<th style="width: 25%;" class="text-right">{{ _("Amount in") }} {{doc.get_formatted("currency", doc)}}</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for d in data %}
+						<tr>
+							<td>{{ d.idx }}</td>
+							<td>
+								<span>{{ d.get_formatted("item_name", doc) }}</span>
+								{% if d.width_asl_size %}
+								<br>
+									{{ d.width_asl_size }}
+								{% endif %}
+								{% if d.width_hight_ht %}
+								<br>
+									{{ d.width_hight_ht }}
+								{% endif %}
+								{% if d.width_hight_hl %}
+								<br>
+									{{ d.width_hight_hl }}
+								{% endif %}
+								{% if doc.taxes|length > 1 %}
+									<div>
+										<i>{{ _("(VAT  ")}}{{ d.item_tax_rate.split(":")[1][:-1] }}{{ ("%) ")}}</i>
+									</div>
+								{% endif %}
+							</td>
+							<td class="text-right">
+								<div class="value">
+									{{ d.get_formatted("qty", doc) }} {{ d.stock_uom }}
+								</div>
+							</td>
+							<td class="text-right">
+								<div class="value">
+									{% if d.rate > d.price_list_rate %}
+										{{ d.get_formatted("rate", doc) }}
+									{% else %}
+										{{ d.get_formatted("price_list_rate", doc) }}
+									{% endif %}
+								</div>
+							</td>
+							{% if doc.check_discount %}
+								<td class="text-right">
+									<div class="value">
+										{{ d.get_formatted("discount_percentage", doc) }}
+									</div>
+								</td>
+							{% endif %}
+							<td class="text-right">
+								<div class="value">
+									{{ d.get_formatted("amount", doc) }}
+								</div>
+								{% if doc.taxes|length > 1 %}
+								<br><br>
+								<div class="value">
+									{{ d.item_tax_amount }}
+								</div>
+								{% endif %}
+							</td>
+						</tr>
+					{% endfor %}
+					{% if doc.discount_amount %}
+						<tr>
+							<td></td>
+							<td style="font-weight: bold;">{{ _("Total") }}</td>
+							<td></td>
+							<td></td>
+							{% if doc.check_discount %}<td></td>{% endif %}
+							<td class="text-right" style="font-weight: bold;">
+								<div class="value">
+									{{ doc.get_formatted("total", doc) }}
+								</div>
+							</td>
+						</tr>
+					{% endif %}
+					{% if doc.discount_1_value %}
+						<tr>
+							<td></td>
+							<td>
+								{{ doc.get_formatted("discount_1_name", doc) }} ({{ doc.get_formatted("discount_1_value", doc) }})
+							</td>
+							<td></td>
+							<td></td>
+							{% if doc.check_discount %}<td></td>{% endif %}
+							<td class="text-right">
+								<div class="value">
+									{{ doc.get_formatted("discount_1_rate", doc) }}
+								</div>
+							</td>
+						</tr>
+					{% endif %}
+					{% if doc.discount_2_value %}
+						<tr>
+							<td></td>
+							<td>
+								{{ doc.get_formatted("discount_2_name", doc) }} ({{ doc.get_formatted("discount_2_value", doc) }})
+							</td>
+							<td></td>
+							<td></td>
+							{% if doc.check_discount %}<td></td>{% endif %}
+							<td class="text-right">
+								<div class="value">
+									{{ doc.get_formatted("discount_2_rate", doc) }}
+								</div>
+							</td>
+						</tr>
+					{% endif %}
+					{% if doc.discount_3_value %}
+						<tr>
+							<td></td>
+							<td>
+								{{ doc.get_formatted("discount_3_name", doc) }}
+							</td>
+							<td></td>
+							<td></td>
+							{% if doc.check_discount %}<td></td>{% endif %}
+							<td class="text-right">
+								<div class="value">
+									{{ doc.get_formatted("discount_3_value", doc) }}
+								</div>
+							</td>
+						</tr>
+					{% endif %}
+					<tr>
+						<td></td>
+						<td style="font-weight: bold;">{{ _("Total (excl. VAT)") }}</td>
+						<td></td>
+						<td></td>
+						{% if doc.check_discount %}<td></td>{% endif %}
+						<td class="text-right" style="font-weight: bold;">
+							<div class="value">
+								{{ doc.get_formatted("net_total", doc) }}
+							</div>
+						</td>
+					</tr>
+					{% if doc.taxes %}
+						{% set tax_data = doc.taxes %}
+						{% for i in tax_data %}
+							<tr>
+								<td></td>
+								<td style="font-weight: bold;">{{ _("VAT (")}}{{ i.rate }} {{("%)") }}</td>
+								<td></td>
+								<td></td>
+								{% if doc.check_discount %}
+									<td></td>
+								{% endif %}
+								<td class="text-right" style="font-weight: bold;">
+									<div class="value">
+										{{ i.get_formatted("tax_amount_after_discount_amount", doc) }}
+									</div>
+								</td>
+							</tr>
+						{% endfor %}
+					{% endif%}
+					<tr>
+						<td></td>
+						<td style="font-weight: bold;">{{ _("Total (incl. VAT)") }}</td>
+						<td></td>
+						<td></td>
+						{% if doc.check_discount %}
+							<td></td>
+						{% endif %}
+						<td class="text-right" style="font-weight: bold;">
+							<div class="value">
+								{{ doc.get_formatted("grand_total", doc) }}
+							</div>
+						</td>
+					</tr>
+					{% if doc.rounded_total_enip - doc.grand_total != 0 %}
+						<tr>
+							<td></td>
+							<td style="font-weight: bold;">{{ _("Rounding Difference") }}</td>
+							<td></td>
+							<td></td>
+							{% if doc.check_discount %}
+								<td></td>
+							{% endif %}
+							<td class="text-right" style="font-weight: bold;">
+								<div class="value">
+									<label>
+										{% set rounded = "{:.2f}".format(doc.rounded_total_enip - doc.grand_total |float) %}
+										{{ rounded }}
+									</label>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td></td>
+							<td style="font-weight: bold;">
+								{{ _("Total (incl. VAT) rounded") }}
+							</td>
+							<td></td>
+							<td></td>
+							{% if doc.check_discount %}
+								<td></td>
+							{% endif %}
+							<td class="text-right" style="font-weight: bold;">
+								<div class="value">
+									{{ doc.get_formatted("rounded_total_enip", doc) }}
+								</div>
+							</td>
+						</tr>
+					{% endif %}
+					{% if doc.get("partial_payment_1_name") and doc.get("partial_payment_1_value") %}
+						<tr>
+							<td></td>
+							{% if doc.check_discount %}
+								<td colspan="4" style="font-weight: bold;">
+							{% else %}
+								<td colspan="3" style="font-weight: bold;">
+							{% endif %}
+								{{ _("Account No.1") }} = {{ doc.get_formatted("partial_payment_1_value", doc) }}
+								{{ doc.get_formatted("partial_payment_1_name", doc) }}
+							</td>
+							<td style="font-weight: bold;" class="text-right">
+								{{ frappe.utils.get_percent_value(doc, "rounded_total_enip", "partial_payment_1_value") }}
+							</td>
+						</tr>
+					{% endif %}
+					{% if doc.get("partial_payment_2_name") and doc.get("partial_payment_2_value") %}
+						<tr>
+							<td></td>
+							{% if doc.check_discount %}
+								<td colspan="4" style="font-weight: bold;">
+							{% else %}
+								<td colspan="3" style="font-weight: bold;">
+							{% endif %}
+								{{ _("Account No.2") }} = {{ doc.get_formatted("partial_payment_2_value", doc) }} {{ doc.get_formatted("partial_payment_2_name", doc) }}
+							</td>
+							<td style="font-weight: bold;" class="text-right">
+								{{ frappe.utils.get_percent_value(doc, "rounded_total_enip", "partial_payment_2_value") }}
+							</td>
+						</tr>
+					{% endif %}
+					{% if doc.get("partial_payment_3_name") and doc.get("partial_payment_3_value") %}
+						<tr>
+							<td></td>
+							{% if doc.check_discount %}
+								<td colspan="4" style="font-weight: bold;">
+							{% else %}
+								<td colspan="3" style="font-weight: bold;">
+							{% endif %}
+								{{ _("Account No.3") }} = {{ doc.get_formatted("partial_payment_3_value", doc) }}
+								{{ doc.get_formatted("partial_payment_3_name", doc) }}
+							</td>
+							<td style="font-weight: bold;" class="text-right">
+								{{ frappe.utils.get_percent_value(doc, "rounded_total_enip", "partial_payment_3_value") }}
+							</td>
+						</tr>
+					{% endif %}
+					{% if doc.get("partial_payment_4_name") and doc.get("partial_payment_4_value") %}
+						<tr>
+							<td></td>
+							{% if doc.check_discount %}
+								<td colspan="4" style="font-weight: bold;">
+							{% else %}
+								<td colspan="3" style="font-weight: bold;">
+							{% endif %}
+								{{ _("Account No.4") }} = {{ doc.get_formatted("partial_payment_4_value", doc) }}
+								{{ doc.get_formatted("partial_payment_4_name", doc) }}
+							</td>
+							<td style="font-weight: bold;" class="text-right">
+								{{ frappe.utils.get_percent_value(doc, "rounded_total_enip", "partial_payment_4_value") }}
+							</td>
+						</tr>
+					{% endif %}
+				</tbody>
+			</table>
+		</div>
+	{% endif %}
+	{% if doc.greeting_text %}
+		<div class="additional-info" style="margin-bottom: 12pt; margin-right: 8px;">
+			{{ doc.greeting_text }}
+		</div>
+	{% endif %}
+	<div class="additional-info" style="margin-bottom: 12pt;">
+		{% if doc.delivery_period %}
+			{{ _("The Delivery Time is") }} {{ doc.delivery_period }} {{ _("Weeks.")}}
+		{% endif %}
+		{% if doc.payment_period %}
+			{{ _("The Payment Deadline is") }} {{ doc.payment_period }} {{ _("Days.")}}
+		{% endif %}
+	</div>
+	{% if doc.items %}
+		{% if doc.item_details %}
+		{% set data = doc.items %}
+			<div class="page-break"></div>
+			<div class="text-left additional-info">
+				<h4>{{ _("Details About Quotation") }}</h4>
+			</div>
+			<div data-fieldname="items" data-fieldtype="Table">
+				<table class="table table-bordered table-condensed additional-info">
+					<thead>
+						<tr>
+							<th style="width: 3%;">{{ _("Pos") }}</th>
+							<th style="width: 25%;">{{ _("Items") }}</th>
+							<th style="width: 35%;">{{ _("Description") }}</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for i in data %}
+							{% if i.show_in_details %}
+								<tr>
+									<td>{{ i.idx }}</td>
+									<td>
+										<div class="value">
+											<div class="primary">
+												{{ _("Item Name") }}: {{ i.item_name }}
+											<br>
+												{{ _("Item Code") }}: {{ i.item_code }}
+											{% if i.width_asl_size %}
+											<br>
+												{{ _("Width & Asl size") }}: {{ i.width_asl_size }}
+											{% endif %}
+											{% if i.width_hight_ht %}
+											<br>
+												{{ _("Width & Hight (ht)") }}: {{ i.width_hight_ht }}
+											{% endif %}
+											{% if i.width_hight_hl %}
+											<br>
+												{{ _("Width & Hight (hl)") }}: {{ i.width_hight_hl }}
+											{% endif %}
+											{% if i.location %}
+											<br>
+												{{ _("Location") }}: {{ i.location }}
+											{% endif %}
+											</div>
+										</div>
+									</td>
+									<td>
+										<div class="value">
+											{{ i.get_formatted("description", doc) }}
+										</div>
+									</td>
+								</tr>
+							{% endif %}
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		{% endif %}
+	{% endif %}
+	{% if doc.items_details_description %}
+		<div class="additional-info" style="margin-bottom: 12pt; margin-right: 8px;">
+			{{ doc.items_details_description }}
+		</div>
+	{% endif%}
+	{% if doc.payment_details %}
+		<div class="same-page additional-info" data-fieldname="paym_details" data-fieldtype="Text Editor" style="margin-bottom: 12pt; margin-right: 8px;">
+			{{ doc.payment_details }}
+		</div>
+	{% endif %}
+	{% if doc.terms %}
+		<div>{{ doc.terms }}</div>
+	{% endif %}
+	</div>
+{% endif %}

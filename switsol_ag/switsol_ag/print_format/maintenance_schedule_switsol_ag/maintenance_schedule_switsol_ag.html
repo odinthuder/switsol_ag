@@ -1,0 +1,220 @@
+<div id="header-html">
+</div>
+<div class="row">
+	<div class="letter-head">{{ frappe.render_template(frappe.db.get_value("Letter Head","Standard", "content"), {"doc": doc}) }}</div>
+</div>
+<div class="visible-pdf" id="footer-html">
+	<body onload="subst()" style="font-family: Arial, sans-serif; font-size: 8pt;">
+		<section style="text-align: center;">
+			<p class="text-center small page-number visible-pdf">
+				{{ _("Page {0} of {1}").format('<span class="page"></span>', '<span class="topage"></span>') }}
+			</p>
+			<div class="page-number" style="padding-top: 1mm;">
+				{{ frappe.render_template(frappe.db.get_value("Letter Head","Standard", "footer"), {"doc": doc}) }}
+			</div>
+		</section>
+	</body>
+</div>
+<div class="row">
+	<div class="col-xs-6" style="line-height: 1.3;">
+		<div class="row" data-fieldname="contract_number" data-fieldtype="Data">
+			<div class="col-xs-6 text-left">
+				<label>{{ _("Contract Number") }}</label>
+			</div>
+			<div class="col-xs-6 value">{{ doc.contract_number }}</div>
+		</div>
+		<div class="row" data-fieldname="transaction_date" data-fieldtype="Date">
+			<div class="col-xs-6 text-left">
+				<label>{{ _("Transaction Date") }}</label>
+			</div>
+			<div class="col-xs-6 value">{{ doc.transaction_date }}</div>
+		</div>
+		<div class="row" data-fieldname="status" data-fieldtype="Data">
+			<div class="col-xs-6 text-left">
+				<label>{{ _("Status") }}</label>
+			</div>
+			<div class="col-xs-6 value">{{ doc.status }}</div>
+		</div>
+	</div>
+	<div class="col-xs-6">
+		{% if doc.target %}
+		<div class="row" data-fieldname="target" data-fieldtype="Data">
+			<div class="col-xs-6 text-left">
+				<label>{{ _("Target") }}</label>
+			</div>
+			<div class="col-xs-6 value">{{ doc.target }}</div>
+		</div>
+		<div class="row" data-fieldname="target" data-fieldtype="Data">
+			<div class="col-xs-6 text-left">
+				<label>{{ _("Object Details") }}</label>
+			</div>
+			<div class="col-xs-6 value">
+				{{ frappe.get_doc("Target", doc.target).get_display() }}
+			</div>
+		</div>
+		{% endif %}
+	</div>
+</div>
+<div class="row">
+	<div class="col-xs-6" style="line-height: 1.3;">
+		<div class="row" data-fieldname="customer_name" data-fieldtype="Data">
+			<div class="col-xs-6 text-left">
+				<label>{{ _("Customer Name") }}</label>
+			</div>
+			<div class="col-xs-6 value">{{ doc.customer_name }}</div>
+		</div>
+		{% if doc.contact_display %}
+		<div class="row" data-fieldname="contact_display" data-fieldtype="Data">
+			<div class="col-xs-6 text-left">
+				<label>{{ _("Contact Display") }}</label>
+			</div>
+			<div class="col-xs-6 value">{{ doc.contact_display }}</div>
+		</div>
+		{% endif %}
+		{% if doc.contact_mobile %}
+			<div class="row" data-fieldname="contact_mobile" data-fieldtype="Data">
+				<div class="col-xs-6 text-left">
+					<label>{{ _("Contact Mobile") }}</label>
+				</div>
+				<div class="col-xs-6 value">{{ doc.contact_mobile }}</div>
+			</div>
+		{% endif %}
+		{% if doc.address_display %}
+		<div class="row" data-fieldname="address_displaye" data-fieldtype="Data">
+			<div class="col-xs-6 text-left">
+				<label>{{ _("Address Display") }}</label>
+			</div>
+			<div class="col-xs-6 value">{{ doc.address_display }}</div>
+		</div>
+		{% endif %}
+		{% if doc.company %}
+			<div class="row" data-fieldname="company" data-fieldtype="Data">
+				<div class="col-xs-6 text-left">
+					<label>{{ _("Company") }}</label>
+				</div>
+				<div class="col-xs-6 value">{{ doc.company }} </div>
+			</div>
+		{% endif %}
+	</div>
+</div>
+{% if doc.items %}
+	{% set data = doc.get("items") %}
+	{% if data %}
+	<div data-fieldname="purposess" data-fieldtype="Table" style="padding-top: -3pt;">
+		<table class="table table-bordered table-condensed">
+			<thead>
+				<tr>
+					<th style="width: 35%;" class="text-left">{{ _("Item Code") }}</th>
+					<th style="width: 15%;" class="text-right">{{ _("Item Name") }}</th><th style="width: 15%;" class="text-right">{{ _("Serial No") }}</th>
+					<th style="width: 15%;" class="text-right">{{ _("Description") }}</th>
+					<th style="width: 15%;" class="text-right">{{ _("Start Date") }}</th>
+					<th style="width: 15%;" class="text-right">{{ _("End Date") }}</th>
+					<th style="width: 15%;" class="text-right">{{ _("Periodicity") }}</th>
+					<th style="width: 15%;" class="text-right">{{ _("No Of Visits") }}</th>
+					<th style="width: 15%;" class="text-right">{{ _("Sales Person") }}</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for d in data %}
+				<tr>
+					<td>
+						<div class="col-xs-6 value">{{ d.item_code }}</div>
+					</td>
+					<td>
+						<div class="col-xs-6 value">{{ d.item_name }}</div>
+					</td>
+					<td>
+						<div class="col-xs-6 value">{{ d.serial_no }}</div>
+					</td>
+					<td>
+						<div class="col-xs-6 value">{{ d.description }}</div>
+					</td>
+					<td>
+						<div class="col-xs-6 value">{{ d.start_date }}</div>
+					</td>
+					<td>
+						<div class="col-xs-6 value">{{ d.end_date }}</div>
+					</td>
+					<td>
+						<div class="col-xs-6 value">{{ d.periodicity }}</div>
+					</td>
+					<td>
+						<div class="col-xs-6 value">{{ d.no_of_visits }}</div>
+					</td>
+					<td>
+						<div class="col-xs-6 value">{{ d.sales_person }}</div>
+					</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+	{% endif %}
+{% endif %}
+{% if doc.schedules %}
+	{% set data = doc.get("schedules") %}
+	{% if data %}
+	<div data-fieldname="purposess" data-fieldtype="Table" style="padding-top: -3pt;">
+		<table class="table table-bordered table-condensed">
+			<thead>
+				<tr>
+					<th style="width: 15%;" class="text-right">
+						{{ _("Item Code") }}
+					</th>
+					<th style="width: 15%;" class="text-right">
+						{{ _("Item Name") }}
+					</th>
+					<th style="width: 15%;" class="text-right">
+						{{ _("Serial No") }}
+					</th>
+					<th style="width: 15%;" class="text-right">
+						{{ _("Scheduled Date") }}
+					</th>
+					<th style="width: 15%;" class="text-right">
+						{{ _("Sales Person") }}
+					</th>
+					<th style="width: 15%;" class="text-right">
+						{{ _("Serial No") }}
+					</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for d in data %}
+				<tr>
+					<td>
+						<div class="col-xs-6 value">
+							{{ d.item_code }}
+						</div>
+					</td>
+					<td>
+						<div class="col-xs-6 value">
+							{{ d.item_name }}
+						</div>
+					</td>
+					<td>
+						<div class="col-xs-6 value">
+							{{ d.serial_no }}
+						</div>
+					</td>
+					<td>
+						<div class="col-xs-6 value">
+							{{ d.scheduled_date }}
+						</div>
+					</td>
+					<td>
+						<div class="col-xs-6 value">
+							{{ d.sales_person }}
+						</div>
+					</td>
+					<td>
+						<div class="col-xs-6 value">
+							{{ d.serial_no }}
+						</div>
+					</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+	{% endif %}
+{% endif %}

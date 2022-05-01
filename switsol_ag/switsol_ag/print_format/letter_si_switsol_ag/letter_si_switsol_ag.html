@@ -1,0 +1,855 @@
+<div id="header-html">
+	<div class="letter-head">
+		{{ frappe.render_template(frappe.db.get_value("Letter Head", "Standard", "content"), {"doc": doc}) }}
+	</div>
+</div>
+	<div class="visible-pdf" id="footer-html">
+		<body style="font-family: Arial, sans-serif; font-size: 8pt;">
+			<section style="line-height: 1 !important;">
+				<div style="text-align: right !important;">
+					<span class="small page-number visible-pdf" style="line-height: 1 !important;">
+						{{ _("Page {0} of {1}").format('<span class="page"></span>', '<span class="topage"></span>') }}
+					</span>
+				</div>
+				{{ frappe.render_template(frappe.db.get_value("Letter Head", "Standard", "footer"), {"doc": doc}) }}
+			</section>
+		</body>
+	</div>
+<div class="page-sizes">
+<div class="row" id="contact_details">
+	<div class="col-xs-8 text-left" style="font-size: 10pt; padding-top: 8mm; line-height: 1.3;">
+		{% set customer_name = frappe.db.get_value("Address", doc.customer_address, "customer_name" ) %}
+		{% set greeting = frappe.db.get_value("Customer", customer_name, "greeting") %}
+			{% if greeting %}
+				{{ _(greeting) }}<br>
+			{% endif %}
+		{{ customer_name }}<br>
+		{% if doc.customer_address %}
+				{% set address_line1 = frappe.db.get_value("Address", doc.customer_address, "address_line1") %}
+				{% if address_line1 %}{{ address_line1 }}<br>{% endif%}
+				{% set address_line2 = frappe.db.get_value("Address", doc.customer_address, "address_line2") %}
+				{% if address_line2 %}{{ address_line2 }}<br>{% endif%}
+				{% set address_line3 = frappe.db.get_value("Address", doc.customer_address, "address_line3") %}
+				{% if address_line3 %}{{ address_line3 }}<br>{% endif%}
+				{% set address_line4 = frappe.db.get_value("Address", doc.customer_address, "address_line4") %}
+				{% if address_line4 %}{{ address_line4 }}<br>{% endif%}
+				{% set country = frappe.db.get_value("Address", doc.customer_address, "country") %}
+				{{ frappe.db.get_value("Country", country, "code") }}-{{ frappe.db.get_value("Address", doc.customer_address, "postal_code") }} 
+				{{ frappe.db.get_value("Address", doc.customer_address, "town") }}
+				{% if not address_line1 %}<br>{% endif%}
+				{% if not address_line2 %}<br>{% endif%}
+				{% if not address_line3 %}<br>{% endif%}
+				{% if not address_line4 %}<br>{% endif%}
+		{% else %}
+			<br>
+			<br>
+			<br>
+			<br>
+		{% endif %}
+		{% if not doc.contact_person %}<br>{% endif %}
+		<div class="date" style="padding-top: 20mm; font-size: 10pt;">
+			{{ frappe.utils.formatdate(doc.sending_date, "dd. MMMM Y") }}
+		</div>
+	</div>
+</div>
+{% if doc.subject %}
+	<div class="main-info" style="margin-right: 8px;">
+		<h4> {{ doc.subject }} </h4>
+	</div>
+{% endif %}
+{% if doc.body_text %}
+	<div class="same-page additional-info" style="margin-bottom: 12pt; margin-right: 8px;">
+		{{ doc.body_text }}
+	</div>
+{% endif %}
+{% if doc.employee_signature and doc.chief_signature %}
+	<div class="row additional-info" style="page-break-inside: avoid !important;">
+		<div class="col-xs-6">
+		{{ _("Kind Regards,") }}
+		{% if doc.add_signature %}
+			{% if doc.chief_signature_value %}
+				<p>
+					<img src="{{ doc.chief_signature_value }}" style="width: 150px; height:100px;">
+				</p>
+			{% else %}
+				<br><br><br>
+			{% endif %}
+			<br>
+			<span>
+				{{ frappe.db.get_value("User", doc.chief_signature, "full_name") }}
+			</span><br>
+			<span>
+				{{ frappe.db.get_value("Employee", {"user_id": doc.chief_signature}, "function")|default("", True) }}
+			</span>
+		</div>
+		<div class="col-xs-6">
+			<br>
+			{% if doc.employee_signature_value %}
+				<p>
+					<img src="{{ doc.employee_signature_value }}" style="width: 150px; height: 100px;">
+					<br>
+				</p>
+			{% elif doc.chief_signature_value %}
+				<p style="margin-top: 250 !important;"><br></p><br><br><br><br><br>
+			{% else %}
+				<br><br>
+			{% endif %}
+			<br>
+			<span>
+				{{ frappe.db.get_value("User", doc.employee_signature, "full_name") }}
+			</span><br>
+			<span>
+				{{ frappe.db.get_value("Employee", {"user_id": doc.employee_signature}, "function")|default("", True) }}
+			</span>
+		</div>
+		{% endif %}
+	</div>
+{% elif doc.chief_signature %}
+	<div class="row additional-info" style="page-break-inside: avoid !important;">
+		<div class="col-xs-6">
+			{{ _("Kind Regards,") }}
+			{% if doc.add_signature %}
+				{% if doc.chief_signature_value %}
+					<p>
+						<img src="{{ doc.chief_signature_value }}" style="width: 150px; height:100px;">
+					</p>
+				{% else %}
+					<br><br><br>
+				{% endif %}
+				<span>
+					{{ frappe.db.get_value("User", doc.chief_signature, "full_name") }}
+				</span><br>
+				<span>
+					{{ frappe.db.get_value("Employee", {"user_id": doc.chief_signature}, "function")|default("", True) }}
+				</span>
+			{% endif %}
+		</div>
+	</div>
+{% elif doc.employee_signature %}
+	<div class="row additional-info" style="page-break-inside: avoid !important;">
+		<div class="col-xs-6">
+			{{ _("Kind Regards,") }}
+			{% if doc.add_signature %}
+				{% if doc.employee_signature_value %}
+					<p>
+						<img src="{{ doc.employee_signature_value }}" style="width: 150px; height: 100px;">
+						<br>
+					</p>
+				{% else %}
+					<br><br><br>
+				{% endif %}
+				<span>
+					{{ frappe.db.get_value("User", doc.employee_signature, "full_name") }}
+				</span><br>
+				<span>
+					{{ frappe.db.get_value("Employee", {"user_id": doc.employee_signature}, "function")|default("", True) }}
+				</span>
+			{% endif %}
+		</div>
+	</div>
+{% endif %}
+<div class="page-break"></div>
+{% set sales_invoice = frappe.get_doc("Sales Invoice", doc.related_name) %}
+<div class="row" id="contact_details">
+	<div class="col-xs-8 text-left" style="font-size: 10pt; padding-top: 18mm; line-height: 1;">
+		{% if not sales_invoice.contact_person %}
+			{% set greeting = frappe.db.get_value("Customer", sales_invoice.customer_name, "greeting") %}
+			{% if greeting %}
+				{{ _(greeting) }}<br>
+			{% endif %}
+		{% endif %}
+		{{ sales_invoice.customer_name }}<br>
+		{% if sales_invoice.contact_person %}
+			{{ sales_invoice.contact_display }}<br>
+		{% endif %}
+		{% if sales_invoice.customer_address %}
+				{% set address_line1 = frappe.db.get_value("Address", sales_invoice.customer_address, "address_line1") %}
+				{% if address_line1 %}{{ address_line1 }}<br>{% endif%}
+				{% set address_line2 = frappe.db.get_value("Address", sales_invoice.customer_address, "address_line2") %}
+				{% if address_line2 %}{{ address_line2 }}<br>{% endif%}
+				{% set address_line3 = frappe.db.get_value("Address", sales_invoice.customer_address, "address_line3") %}
+				{% if address_line3 %}{{ address_line3 }}<br>{% endif%}
+				{% set address_line4 = frappe.db.get_value("Address", sales_invoice.customer_address, "address_line4") %}
+				{% if address_line4 %}{{ address_line4 }}<br>{% endif%}
+				{% set country = frappe.db.get_value("Address", sales_invoice.customer_address, "country") %}
+				{{ frappe.db.get_value("Country", country, "code") }}{% set postal_code = frappe.db.get_value("Address", sales_invoice.customer_address, "postal_code") %}{% if postal_code %}{{_("-")}}{{postal_code}}{% endif %} 
+				{% set town = frappe.db.get_value("Address", sales_invoice.customer_address, "town") %}{% if town %}{{ town }}{% endif %}
+				{% if not address_line1 %}<br>{% endif%}
+				{% if not address_line2 %}<br>{% endif%}
+				{% if not address_line3 %}<br>{% endif%}
+				{% if not address_line4 %}<br>{% endif%}
+			{% else %}
+				<br>
+				<br>
+				<br>
+				<br>
+			{% endif %}
+			{% if not sales_invoice.contact_person %}<br>{% endif %}
+		<div class="date" style="padding-top: 20mm; font-size: 10pt;">
+			{{ frappe.utils.formatdate(sales_invoice.sending_date, "dd. MMMM Y") }}
+		</div>
+	</div>
+	<div class="col-xs-4 staff-member" style="padding-top: 12mm; margin-left: -4mm;">
+		{% if sales_invoice.clerk_name %}
+			<div class="staff-name">
+				<strong>
+					{{ frappe.db.get_value("Employee", {"user_id": sales_invoice.clerk_name }, "employee_name") }}
+				</strong>
+			</div>
+			<div class="staff-function">
+				<span style="margin-top: 6mm;">
+					{{ frappe.db.get_value("Employee", {"user_id": sales_invoice.clerk_name}, "function") }}
+				</span>
+				<address>
+					{% set phone = frappe.db.get_value("Employee", {"user_id": sales_invoice.clerk_name}, "phone_office_direct") %}
+					{% if phone%}{{ "D: " + phone }}<br>{% endif %}
+					{% set mobile = frappe.db.get_value("Employee", {"user_id": sales_invoice.clerk_name}, "natel_work") %}
+					{% if mobile %}{{ "M: " + mobile }}<br>{% endif %}
+					{% set email = frappe.db.get_value("Employee", {"user_id": sales_invoice.clerk_name}, "company_email") %}
+					{% if email %}{{ "@: " + email }}{% endif %}
+				</address>
+			</div>
+		{% else %}
+			<div class="staff-name">
+				<strong>
+					{{ frappe.db.get_value("Employee", {"user_id": sales_invoice.chief_signature }, "employee_name") }}
+				</strong>
+			</div>
+			<div class="staff-function">
+				<span>
+					{{ frappe.db.get_value("Employee", {"user_id": sales_invoice.chief_signature}, "function") }}
+				</span>
+				<address>
+					{% set phone = frappe.db.get_value("Employee", {"user_id": sales_invoice.chief_signature}, "phone_office_direct") %}
+					{% if phone %}{{ "D: " + phone }}<br>{% endif %}
+					{% set mobile = frappe.db.get_value("Employee", {"user_id": sales_invoice.chief_signature}, "natel_work") %}
+					{% if mobile %}{{ "M: " + mobile }}<br>{% endif %}
+					{% set email = frappe.db.get_value("Employee", {"user_id": sales_invoice.chief_signature}, "company_email") %}
+					{% if email %}{{ "@: " + email }}{% endif %}
+				</address>
+			</div>
+		{% endif %}
+	</div>
+</div>
+<div class="text-left main-info">
+	<h4>{{ _(sales_invoice.doctype) }} {{ sales_invoice.name }}<br>{% if sales_invoice.offer_content%}({{ sales_invoice.offer_content }}) {% endif %}</h4>
+</div>
+<div class="row" style="margin-bottom: 12pt; margin-right: 8px;">
+	<div class="col-xs-6 additional-info">
+		<div class="row" data-fieldname="transaction_date" data-fieldtype="Date">
+			<div class="col-xs-6 text-left">
+				<label>{{ _("Sales Invoice Date") }}</label>
+			</div>
+			<div class="col-xs-6 value">
+				{{ sales_invoice.get_formatted("transaction_date", sales_invoice) }}
+			</div>
+		</div>
+		{% if sales_invoice.sales_order_name %}
+			{% set quotation_name = frappe.db.get_value("Sales Order", sales_invoice.sales_order_name, "quotation_name") %}
+			{% if quotation_name %}
+				<div class="row" data-fieldname="quotation_name" data-fieldtype="Data">
+					<div class="col-xs-6 text-left">
+						<label>{{ _("Quotation Number") }}</label>
+					</div>
+					<div class="col-xs-6 value">
+						{{ quotation_name }}
+					</div>
+				</div>
+			{% endif %}
+		{% endif %}
+		{% if sales_invoice.sales_order_name %}
+			<div class="row" data-fieldname="sales_order_name" data-fieldtype="Data">
+				<div class="col-xs-6 text-left">
+					<label>{{ _("Sales Order Number") }}</label>
+				</div>
+				<div class="col-xs-6 value">
+					{{ sales_invoice.get_formatted("sales_order_name", sales_invoice) }}
+				</div>
+			</div>
+		{% endif %}
+		<div class="row" data-fieldname="sales_invoice_name" data-fieldtype="Data">
+			<div class="col-xs-6 text-left">
+				<label>{{ _("Sales Invoice Number") }}</label>
+			</div>
+			<div class="col-xs-6 value">
+				{{ sales_invoice.get_formatted("name", sales_invoice) }}
+			</div>
+		</div>
+		{% if sales_invoice.clerk_name %}
+		{% set employee_name = frappe.db.get_value("Employee", {"user_id": sales_invoice.clerk_name }, "employee_name") %}
+		{% if employee_name %}
+			<div class="row" data-fieldname="clerk_name" data-fieldtype="Link">
+				<div class="col-xs-6 text-left">
+					<label>{{ _("Clerk") }}</label>
+				</div>
+				<div class="col-xs-6 value">
+					{{ employee_name }}
+				</div>
+			</div>
+		{% endif %}
+		{% endif %}
+		{% if sales_invoice.customer_name %}
+			<div class="row" data-fieldname="customer_number" data-fieldtype="Link">
+				<div class="col-xs-6 text-left">
+					<label>{{ _("Customer Number") }}</label>
+				</div>
+				<div class="col-xs-6 value">
+					{{ sales_invoice.get_formatted("customer", sales_invoice) }}
+				</div>
+			</div>
+		{% endif %}
+		{% if sales_invoice.company == "Gilgen Storen AG" %}
+			{% if sales_invoice.object_number %}
+				<div class="row" data-fieldname="object_number" data-fieldtype="Data">
+					<div class="col-xs-6 text-left">
+						<label>{{ _("Object") }}</label>
+					</div>
+					<div class="col-xs-6 value">{{ sales_invoice.get_formatted("object_number", sales_invoice) }} </div>
+				</div>
+			{% endif %}
+		{% endif %}
+		{% if sales_invoice.contact_start_date %}
+			<div class="row" data-fieldname="contact_start_date" data-fieldtype="Date">
+				<div class="col-xs-6 text-left">
+					<label>{{ _("Contract Start Date") }}</label>
+				</div>
+				<div class="col-xs-6 value">{{ sales_invoice.get_formatted("contact_start_date", sales_invoice) }}</div>
+			</div>
+		{% endif %}
+		{% if sales_invoice.contact_end_date %}
+			<div class="row" data-fieldname="contact_end_date" data-fieldtype="Date">
+				<div class="col-xs-6 text-left">
+					<label>{{ _("Contract End Date") }}</label>
+				</div>
+				<div class="col-xs-6 value">{{ sales_invoice.get_formatted("contact_end_date", sales_invoice) }}</div>
+			</div>
+		{% endif %}
+	</div>
+	<div class="col-xs-6 additional-info">
+		{% if sales_invoice.client_order_number %}
+			<div class="row" data-fieldname="client_order_number" data-fieldtype="Data">
+				<div class="col-xs-6 text-left">
+					<label>{{ _("Client Order Number") }}</label>
+				</div>
+				<div class="col-xs-6 value">{{ sales_invoice.get_formatted("client_order_number", sales_invoice) }}</div>
+			</div>
+		{% endif %}
+		{% if sales_invoice.client_contract_number %}
+			<div class="row" data-fieldname="client_contract_number" data-fieldtype="Data">
+				<div class="col-xs-6 text-left">
+					<label>{{ _("Client Contract Number") }}</label>
+				</div>
+				<div class="col-xs-6 value">{{ sales_invoice.get_formatted("client_contract_number", sales_invoice) }}</div>
+			</div>
+		{% endif %}
+		{% if sales_invoice.client_project_number %}
+			<div class="row" data-fieldname="client_project_number" data-fieldtype="Data">
+				<div class="col-xs-6 text-left">
+					<label>{{ _("Client Project Number") }}</label>
+				</div>
+				<div class="col-xs-6 value">{{ sales_invoice.get_formatted("client_project_number", sales_invoice) }}</div>
+			</div>
+		{% endif %}
+		{% if sales_invoice.client_reference %}
+			<div class="row" data-fieldname="client_reference" data-fieldtype="Data">
+				<div class="col-xs-6 text-left">
+					<label>{{ _("Client Reference") }}</label>
+				</div>
+				<div class="col-xs-6 value">{{ sales_invoice.get_formatted("client_reference", sales_invoice) }}</div>
+			</div>
+		{% endif %}
+		{% if sales_invoice.client_order %}
+			<div class="row" data-fieldname="client_order" data-fieldtype="Data">
+				<div class="col-xs-6 text-left">
+					<label>{{ _("Your Order") }}</label>
+				</div>
+				<div class="col-xs-6 value">{{ sales_invoice.get_formatted("client_order", sales_invoice) }}</div>
+			</div>
+		{% endif %}
+		{% if sales_invoice.client_end_customer %}
+			<div class="row" data-fieldname="client_reference" data-fieldtype="Data">
+				<div class="col-xs-6 text-left">
+					<label>{{ _("Client End Customer") }}</label>
+				</div>
+				<div class="col-xs-6 value">{{ sales_invoice.get_formatted("client_end_customer", sales_invoice) }}</div>
+			</div>
+		{% endif %}
+		{% if sales_invoice.client_contact_person %}
+			<div class="row" data-fieldname="client_contact_person" data-fieldtype="Data">
+				<div class="col-xs-6 text-left">
+					<label>{{ _("Client Contact Person") }}</label>
+				</div>
+				<div class="col-xs-6 value">{{ sales_invoice.get_formatted("client_contact_person", sales_invoice) }}</div>
+			</div>
+		{% endif %}
+	</div>
+</div>
+{% if sales_invoice.company != "Gilgen Storen AG" %}
+{% if sales_invoice.contact_greeting %}
+	<div class="additional-info" style="margin-bottom: 12pt; margin-right: 8px;">
+		<br>{{ sales_invoice.contact_greeting }}
+		{% set default_greetings = [_("Dear Sir or Madam"), _("Dear Madam"), _("Dear Sir")] %}
+		{% if sales_invoice.contact_greeting in default_greetings %}
+			{% if sales_invoice.contact_person %} {{ frappe.db.get_value("Contact", sales_invoice.contact_person, "last_name") }}{% endif %}
+		{% endif %}
+	</div>
+{% endif %}
+{% endif %}
+{% if sales_invoice.description_text %}
+	<div class="additional-info" style="margin-bottom: 12pt; margin-right: 8px;">
+		{{ sales_invoice.description_text }}
+	</div>
+{% endif %}
+{% if sales_invoice.company != "Gilgen Storen AG" %}
+{% if sales_invoice.items_description1 %}
+	<div class="same-page additional-info" style="margin-bottom: 11pt; margin-right: 8px;">
+		{{ sales_invoice.items_description1 }}
+	</div>
+{% endif %}
+{% if sales_invoice.employee_signature and sales_invoice.chief_signature %}
+	<div class="row additional-info" style="page-break-inside: avoid !important;">
+		<div class="col-xs-6">
+			{{ _("Kind Regards,") }}
+			{% if sales_invoice.chief_signature_value %}
+				<p>
+					<img src="{{ sales_invoice.chief_signature_value }}" style="width: 150px; height:100px;">
+				</p>
+			{% else %}
+				<br><br><br>
+			{% endif %}
+			<br>
+			<span>
+				{{ frappe.db.get_value("User", sales_invoice.chief_signature, "full_name") }}
+			</span><br>
+			<span>
+				{{ frappe.db.get_value("Employee", {"user_id": sales_invoice.chief_signature}, "function")|default("", True) }}
+			</span>
+		</div>
+		<div class="col-xs-6">
+			<br>
+			{% if sales_invoice.employee_signature_value %}
+				<p>
+					<img src="{{ sales_invoice.employee_signature_value }}" style="width: 150px; height: 100px;">
+					<br>
+				</p>
+			{% elif sales_invoice.chief_signature_value %}
+				<p style="margin-top: 250 !important;"><br></p><br><br><br><br><br>
+			{% else %}
+				<br><br>
+			{% endif %}
+			<br>
+			<span>
+				{{ frappe.db.get_value("User", sales_invoice.employee_signature, "full_name") }}
+			</span><br>
+			<span>
+				{{ frappe.db.get_value("Employee", {"user_id": sales_invoice.employee_signature}, "function")|default("", True) }}
+			</span>
+		</div>
+	</div>
+{% elif sales_invoice.chief_signature %}
+	<div class="row additional-info" style="page-break-inside: avoid !important;">
+		<div class="col-xs-6">
+			{{ _("Kind Regards,") }}
+			{% if sales_invoice.chief_signature_value %}
+				<p>
+					<img src="{{ sales_invoice.chief_signature_value }}" style="width: 150px; height:100px;">
+				</p>
+			{% else %}
+				<br><br><br>
+			{% endif %}
+			<span>
+				{{ frappe.db.get_value("User", sales_invoice.chief_signature, "full_name") }}
+			</span><br>
+			<span>
+				{{ frappe.db.get_value("Employee", {"user_id": sales_invoice.chief_signature}, "function")|default("", True) }}
+			</span>
+		</div>
+	</div>
+{% elif sales_invoice.employee_signature %}
+	<div class="row additional-info" style="page-break-inside: avoid !important;">
+		<div class="col-xs-6">
+			{{ _("Kind Regards,") }}
+			{% if sales_invoice.employee_signature_value %}
+				<p>
+					<img src="{{ sales_invoice.employee_signature_value }}" style="width: 150px; height: 100px;">
+					<br>
+				</p>
+			{% else %}
+				<br><br><br>
+			{% endif %}
+			<span>
+				{{ frappe.db.get_value("User", sales_invoice.employee_signature, "full_name") }}
+			</span><br>
+			<span>
+				{{ frappe.db.get_value("Employee", {"user_id": sales_invoice.employee_signature}, "function")|default("", True) }}
+			</span>
+		</div>
+	</div>
+{% endif %}
+{% endif %}
+{% if sales_invoice.items %}
+	{% if sales_invoice.company != "Gilgen Storen AG" %}
+	<div class="page-break"></div>
+	{% endif %}
+	{% set data = sales_invoice.get("items") %}
+	{% if data %}
+		<div data-fieldname="items additional-info" data-fieldtype="Table">
+		<table class="table table-bordered table-condensed additional-info">
+			<thead>
+				<tr>
+					{% if sales_invoice.company == "Gilgen Storen AG" %}
+						<th style="width: 6%;" class="text-left">{{ _("Date") }} </th>
+					{% else %}
+						<th style="width: 6%;" class="text-left">{{ _("Pos.") }} </th>
+					{% endif %}
+					<th style="width: 29%;" class="text-left">{{ _("Designation") }}</th>
+					<th style="width: 15%;" class="text-right">{{ _("Quantity") }}</th><th style="width: 15%;" class="text-right">{{ _("Rate") }}</th>
+					{% if sales_invoice.check_discount %}
+						<th style="width: 15%;" class="text-right">{{ _("Discount") }}</th>
+					{% endif %}
+					<th style="width: 25%;" class="text-right">{{ _("Amount in") }} {{sales_invoice.get_formatted("currency", sales_invoice)}}</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for d in data %}
+					<tr>
+						{% if sales_invoice.company == "Gilgen Storen AG" %}
+							{% if d.installation_date %}
+								<td>
+									{{ frappe.utils.formatdate(d.installation_date, "dd.MM.YY") }}
+								</td>
+							{% else %}
+								<td>
+									{{ "" }}
+								</td>
+							{% endif %}
+							<td>
+								<span>{{ d.get_formatted("item_name", sales_invoice) }}</span>
+								{% if sales_invoice.taxes|length > 1 %}
+									<div>
+										<i>{{ _("(VAT  ")}}{{ d.item_tax_rate.split(":")[1][:-1] }}{{ ("%) ")}}</i>
+									</div>
+								{% endif %}
+							</td>
+						{% else %}
+							<td>{{ d.idx }}</td>
+							<td>
+							<span>{{ d.get_formatted("item_name", sales_invoice) }}<br>
+							{{ d.get_formatted("item_code", sales_invoice) }}</span>
+							{% if sales_invoice.taxes|length > 1 %}
+								<div>
+									<i>{{ _("(VAT  ")}}{{ d.item_tax_rate.split(":")[1][:-1] }}{{ ("%) ")}}</i>
+								</div>
+							{% endif %}
+						</td>
+						{% endif %}
+						<td class="text-right">
+							<div class="value">{{ d.get_formatted("qty", sales_invoice) }}{{ (" x ") + d.stock_uom }}</div>
+						</td>
+						<td class="text-right">
+							<div class="value">
+								{% if d.rate > d.price_list_rate %}
+									{{ d.get_formatted("rate", sales_invoice) }}
+								{% else %}
+									{{ d.get_formatted("price_list_rate", sales_invoice) }}
+								{% endif %}
+							</div>
+						</td>
+						{% if sales_invoice.check_discount %}
+							<td class="text-right">
+								<div class="value">
+									{{ d.get_formatted("discount_percentage", sales_invoice) }}
+								</div>
+							</td>
+						{% endif %}
+						<td class="text-right">
+							<div class="value">
+								{{ d.get_formatted("amount", sales_invoice) }}
+							</div>
+							{% if sales_invoice.taxes|length > 1 %}
+							<br><br>
+							<div class="value">
+								{{ d.item_tax_amount }}
+							</div>
+							{% endif %}
+						</td>
+					</tr>
+				{% endfor %}
+				{% if sales_invoice.timesheets %}
+					{% set timesheets = sales_invoice.timesheets %}
+					{% for i in timesheets %}
+						{% set time_log_sales_invoice = frappe.get_sales_invoice("Timesheet", i.time_sheet) %}
+						<tr>
+							<td></td>
+							<td>{{ _("Time Report From") }} {{ time_log_sales_invoice.get_formatted("start_date", time_log_sales_invoice).split()[0] }}
+							<br>{{ "(" + frappe.db.get_value("Timesheet", i.time_sheet, "employee") + ")" }}</td>
+							<td class="text-right">
+								<div class="value">
+									{{ i.get_formatted("billing_hours", i) }}
+								</div>
+							</td>
+							<td>
+								<div class="text-right" class="value">
+								</div>
+							</td>
+							{% if sales_invoice.check_discount %}
+								<td></td>
+							{% endif %}
+							<td class="text-right">
+								<div class="value">
+									{{ i.get_formatted("billing_amount", sales_invoice) }}
+								</div>
+							</td>
+						</tr>
+					{% endfor %}
+				{% endif %}
+				{% if sales_invoice.discount_amount %}
+					<tr>
+						<td></td>
+						<td style="font-weight: bold;">{{ _("Total") }}</td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td class="text-right" style="font-weight: bold;">
+							<div class="value">
+								{{ sales_invoice.get_formatted("total", sales_invoice) }}
+							</div>
+						</td>
+					</tr>
+				{% endif %}
+				{% if sales_invoice.discount_1_value %}
+					<tr>
+						<td></td>
+						<td>
+							{{ sales_invoice.get_formatted("discount_1_name", sales_invoice) }}
+						</td>
+						<td></td>
+						<td></td>
+						<td class="text-right">
+							<div class="value">
+								{{ sales_invoice.get_formatted("discount_1_value", sales_invoice) }}
+							</div>
+						</td>
+						<td class="text-right">
+							<div class="value">
+								{{ sales_invoice.get_formatted("discount_1_rate", sales_invoice) }}
+							</div>
+						</td>
+					</tr>
+				{% endif %}
+				{% if sales_invoice.discount_2_value %}
+					<tr>
+						<td></td>
+						<td>
+							{{ sales_invoice.get_formatted("discount_2_name", sales_invoice) }}
+						</td>
+						<td></td>
+						<td></td>
+						<td class="text-right">
+							<div class="value">
+								{{ sales_invoice.get_formatted("discount_2_value", sales_invoice) }}
+							</div>
+						</td>
+						<td class="text-right">
+							<div class="value">
+								{{ sales_invoice.get_formatted("discount_2_rate", sales_invoice) }}
+							</div>
+						</td>
+					</tr>
+				{% endif %}
+				{% if sales_invoice.discount_3_value %}
+					<tr>
+						<td></td>
+						<td>
+							{{ sales_invoice.get_formatted("discount_3_name", sales_invoice) }}
+						</td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td class="text-right">
+							<div class="value">
+								{{ sales_invoice.get_formatted("discount_3_value", sales_invoice) }}
+							</div>
+						</td>
+					</tr>
+				{% endif %}
+				<tr>
+					<td></td>
+					<td style="font-weight: bold;">{{ _("Total (excl. VAT)") }}</td>
+					<td></td>
+					<td></td>
+					{% if sales_invoice.check_discount %}<td></td>{% endif %}
+					<td class="text-right" style="font-weight: bold;">
+						<div class="value">
+							{{ sales_invoice.get_formatted("net_total", sales_invoice) }}
+						</div>
+					</td>
+				</tr>
+				{% if sales_invoice.taxes %}
+					{% set tax_data = sales_invoice.taxes %}
+					{% for i in tax_data %}
+						<tr>
+							<td></td>
+							<td style="font-weight: bold;">{{ _("VAT (")}}{{ i.rate }} {{("%)") }}</td>
+							<td></td>
+							<td></td>
+							{% if sales_invoice.check_discount %}
+								<td></td>
+							{% endif %}
+							<td class="text-right" style="font-weight: bold;">
+								<div class="value">
+									{{ i.get_formatted("tax_amount_after_discount_amount", sales_invoice) }}
+								</div>
+							</td>
+						</tr>
+					{% endfor %}
+				{% endif%}
+				<tr>
+					<td></td>
+					<td style="font-weight: bold;">{{ _("Total (incl. VAT)") }}</td>
+					<td></td>
+					<td></td>
+					{% if sales_invoice.check_discount %}
+						<td></td>
+					{% endif %}
+					<td class="text-right" style="font-weight: bold;">
+						<div class="value">
+							{{ sales_invoice.get_formatted("grand_total", sales_invoice) }}
+						</div>
+					</td>
+				</tr>
+				{% if sales_invoice.rounded_total_enip - sales_invoice.grand_total != 0 %}
+					<tr>
+						<td></td>
+						<td style="font-weight: bold;">{{ _("Rounding Difference") }}</td>
+						<td></td>
+						<td></td>
+						{% if sales_invoice.check_discount %}
+							<td></td>
+						{% endif %}
+						<td class="text-right" style="font-weight: bold;">
+							<div class="value">
+								<label>
+									{% set rounded = "{:.2f}".format(sales_invoice.rounded_total_enip - sales_invoice.grand_total |float) %}
+									<!-- {{  "{} {}".format("Fr", rounded)}} -->
+									{{ rounded }}
+								</label>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td></td>
+						<td style="font-weight: bold;">
+							{{ _("Total (incl. VAT) rounded") }}
+						</td>
+						<td></td>
+						<td></td>
+						{% if sales_invoice.check_discount %}
+							<td></td>
+						{% endif %}
+						<td class="text-right" style="font-weight: bold;">
+							<div class="value">
+								{{ sales_invoice.get_formatted("rounded_total_enip", sales_invoice) }}
+							</div>
+						</td>
+					</tr>
+				{% endif %}
+				{% if sales_invoice.get("partial_payment_1_name") and sales_invoice.get("partial_payment_1_value") %}
+					<tr>
+						<td></td>
+						{% if sales_invoice.check_discount %}
+							<td colspan="4" style="font-weight: bold;">
+						{% else %}
+							<td colspan="3" style="font-weight: bold;">
+						{% endif %}
+							{{ _("Account No.1") }} = {{ sales_invoice.get_formatted("partial_payment_1_value", sales_invoice) }}
+							{{ sales_invoice.get_formatted("partial_payment_1_name", sales_invoice) }}
+						</td>
+						<td style="font-weight: bold;" class="text-right">
+							{{ frappe.utils.get_percent_value(sales_invoice, "rounded_total_enip", "partial_payment_1_value") }}
+						</td>
+					</tr>
+				{% endif %}
+				{% if sales_invoice.get("partial_payment_2_name") and sales_invoice.get("partial_payment_2_value") %}
+					<tr>
+						<td></td>
+						{% if sales_invoice.check_discount %}
+							<td colspan="4" style="font-weight: bold;">
+						{% else %}
+							<td colspan="3" style="font-weight: bold;">
+						{% endif %}
+							{{ _("Account No.2") }} = {{ sales_invoice.get_formatted("partial_payment_2_value", sales_invoice) }} {{ sales_invoice.get_formatted("partial_payment_2_name", sales_invoice) }}
+						</td>
+						<td style="font-weight: bold;" class="text-right">
+							{{ frappe.utils.get_percent_value(sales_invoice, "rounded_total_enip", "partial_payment_2_value") }}
+						</td>
+					</tr>
+				{% endif %}
+				{% if sales_invoice.get("partial_payment_3_name") and sales_invoice.get("partial_payment_3_value") %}
+					<tr>
+						<td></td>
+						{% if sales_invoice.check_discount %}
+							<td colspan="4" style="font-weight: bold;">
+						{% else %}
+							<td colspan="3" style="font-weight: bold;">
+						{% endif %}
+							{{ _("Account No.3") }} = {{ sales_invoice.get_formatted("partial_payment_3_value", sales_invoice) }}
+							{{ sales_invoice.get_formatted("partial_payment_3_name", sales_invoice) }}
+						</td>
+						<td style="font-weight: bold;" class="text-right">
+							{{ frappe.utils.get_percent_value(sales_invoice, "rounded_total_enip", "partial_payment_3_value") }}
+						</td>
+					</tr>
+				{% endif %}
+				{% if sales_invoice.get("partial_payment_4_name") and sales_invoice.get("partial_payment_4_value") %}
+					<tr>
+						<td></td>
+						{% if sales_invoice.check_discount %}
+							<td colspan="4" style="font-weight: bold;">
+						{% else %}
+							<td colspan="3" style="font-weight: bold;">
+						{% endif %}
+							{{ _("Account No.4") }} = {{ sales_invoice.get_formatted("partial_payment_4_value", sales_invoice) }}
+							{{ sales_invoice.get_formatted("partial_payment_4_name", sales_invoice) }}
+						</td>
+						<td style="font-weight: bold;" class="text-right">
+							{{ frappe.utils.get_percent_value(sales_invoice, "rounded_total_enip", "partial_payment_4_value") }}
+						</td>
+					</tr>
+				{% endif %}
+			</tbody>
+		</table>
+	</div>
+	{% endif %}
+{% endif %}
+{% if sales_invoice.company == "Gilgen Storen AG" %}
+{% if sales_invoice.items_description1 %}
+	<div class="same-page additional-info" style="margin-bottom: 11pt; margin-right: 8px;">
+		{{ sales_invoice.items_description1 }}
+	</div>
+{% endif %}
+{% endif %}
+{% if sales_invoice.greeting_text %}
+	<div class="additional-info" style="margin-bottom: 12pt; margin-right: 8px;">
+		{{ sales_invoice.greeting_text }}
+	</div>
+{% endif %}
+<div class="additional-info" style="margin-bottom: 12pt;">
+	{% if sales_invoice.company != "Gilgen Storen AG" %}
+		{% if sales_invoice.delivery_period %}
+			{{ _("The Delivery Time is") }} {{ sales_invoice.delivery_period }} {{ _("Weeks.")}}
+		{% endif %}
+		{% if sales_invoice.payment_period %}
+			{{ _("The Payment Deadline is") }} {{ sales_invoice.payment_period }} {{ _("Days.")}}
+		{% endif %}
+	{% else %}
+		{{ _("The Delivery Time is") }} {{ _(sales_invoice.delivery_period_data) }}.
+		{{ _("The Payment Deadline is") }} {{ sales_invoice.payment_condition }} {{ _("Days.")}}
+	{% endif %}
+</div>
+{% if sales_invoice.payment_details %}
+	<div class="same-page additional-info" data-fieldname="paym_details" data-fieldtype="Text Editor" style="margin-bottom: 12pt; margin-right: 8px;">
+		{{ sales_invoice.payment_details }}
+	</div>
+{% endif %}
+</div>

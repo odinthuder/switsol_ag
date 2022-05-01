@@ -1,0 +1,183 @@
+<div id="header-html">
+</div>
+{% if doc.letter_head %}
+	<div class="row">
+		<div class="letter-head">{{ frappe.render_template(frappe.db.get_value("Letter Head",doc.letter_head, "content"), {"doc": doc}) }}</div>
+	</div>
+{% endif %}
+{% if doc.letter_head %}
+	<div class="visible-pdf" id="footer-html">
+		<body style="font-family: Arial, sans-serif; font-size: 8pt;">
+			<section style="text-align: center; line-height: 1 !important;">
+				<span class="text-center small page-number visible-pdf" style="line-height: 1 !important;">
+					{{ _("Page {0} of {1}").format('<span class="page"></span>', '<span class="topage"></span>') }}
+				</span>
+				{% set footer = frappe.db.get_value("Letter Head", doc.letter_head, "footer") %}
+				{% if footer %}
+					{{ frappe.render_template(frappe.db.get_value("Letter Head",doc.letter_head, "footer"), {"doc": doc}) }}
+				{% endif %}
+			</section>
+		</body>
+	</div>
+{% endif %}
+<div class="row" id="contact_details">
+	<div class="col-xs-7 text-left" style="font-size: 10pt; padding-top: 10mm; line-height: 1;">
+		{{ doc.customer_name }}<br>
+		{% if doc.contact_person %}
+			{% set sex = frappe.db.get_value("Contact", doc.contact_person, "gender") %}
+			{% if sex=="Male" %} {{ _("Mr") }} 
+			{% elif sex=="Female" %} {{ _("Mrs") }}
+			{% endif %}
+			{{ doc.contact_display }}<br>
+		{% endif %}
+		{% if doc.customer_address %}
+			{% set address_line1 = frappe.db.get_value("Address", doc.customer_address, "address_line1") %}
+			{% if address_line1 %}{{ address_line1 }}<br>{% endif%}
+			{% set address_line2 = frappe.db.get_value("Address", doc.customer_address, "address_line2") %}
+			{% if address_line2 %}{{ address_line2 }}<br>{% endif%}
+			{% set address_line3 = frappe.db.get_value("Address", doc.customer_address, "address_line3") %}
+			{% if address_line3 %}{{ address_line3 }}<br>{% endif%}
+			{% set address_line4 = frappe.db.get_value("Address", doc.customer_address, "address_line4") %}
+			{% if address_line4 %}{{ address_line4 }}<br>{% endif%}
+			{{ frappe.db.get_value("Address", doc.customer_address, "pincode") }} 
+			{{ frappe.db.get_value("Address", doc.customer_address, "city") }}
+		{% endif %}
+		<div class="date" style="padding-top: 30mm;">
+			<span><br>
+				{{ frappe.utils.formatdate(doc.sending_date, "dd. MMMM Y") }}
+			</span>
+		</div>
+	</div>
+</div>
+<div class="text-left main-info">
+	<h4>{{ _(doc.doctype) }} {{ doc.name }}<br></h4>
+</div>
+<div class="row" style="margin-bottom: 12pt;">
+	<div class="col-xs-6 additional-info">
+		<div class="row" data-fieldname="posting_date" data-fieldtype="Date">
+			<div class="col-xs-6 text-left">
+				<label>{{ _("Delivery Note Date") }}</label>
+			</div>
+			<div class="col-xs-6 value">
+				{{ doc.get_formatted("posting_date", doc) }}
+			</div>
+		</div>
+		{% if doc.customer_name %}
+			<div class="row" data-fieldname="customer_number" data-fieldtype="Link">
+				<div class="col-xs-6 text-left">
+					<label>{{ _("Customer Number") }}</label>
+				</div>
+				<div class="col-xs-6 value">
+					{{ doc.get_formatted("customer", doc) }}
+				</div>
+			</div>
+		{% endif %}
+	</div>
+</div>
+{% if doc.items %}
+	<div class="page-break"></div>
+	{% set data = doc.get("items") %}
+	{% if data %}
+		<div data-fieldname="items additional-info" data-fieldtype="Table">
+		<table class="table table-bordered table-condensed additional-info">
+			<thead>
+				<tr>
+					<th style="width: 3%;" class="text-left">{{ _("Pos") }} </th>
+					<th style="width: 32%;" class="text-left">{{ _("Designation") }}</th>
+					<th style="width: 15%;" class="text-right">{{ _("Quantity") }}</th><th style="width: 15%;" class="text-right">{{ _("Rate") }}</th>
+					<th style="width: 15%;" class="text-right">{{ _("Discount") }}</th>
+					<th style="width: 25%;" class="text-right">{{ _("Amount in") }} {{doc.get_formatted("currency", doc)}}</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for d in data %}
+					<tr>
+						<td>{{ d.idx }}</td>
+						<td>
+							<div>{{ d.get_formatted("item_name", doc) }}</div>
+							<div>{{ d.get_formatted("item_code", doc) }}</div>
+						</td>
+						<td class="text-right">
+							<div class="value">{{ d.get_formatted("qty", doc) }}{{ (" ") + d.stock_uom }}</div>
+						</td>
+						<td class="text-right">
+							<div class="value">
+								{% if d.rate > d.price_list_rate %}
+									{{ d.get_formatted("rate", doc) }}
+								{% else %}
+									{{ d.get_formatted("price_list_rate", doc) }}
+								{% endif %}
+							</div>
+						</td>
+						<td class="text-right">
+							<div class="value">
+								{{ d.discount_percentage }}
+							</div>
+						</td>
+						<td class="text-right">
+							<div class="value">
+								{{ d.get_formatted("amount", doc) }}
+							</div>
+						</td>
+					</tr>
+				{% endfor %}
+				{% if doc.discount_amount %}
+					<tr>
+						<td></td>
+						<td style="font-weight: bold;">{{ _("Total") }}</td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td class="text-right" style="font-weight: bold;">
+							<div class="value">
+								{{ doc.get_formatted("total", doc) }}
+							</div>
+						</td>
+					</tr>
+				{% endif %}
+				<tr>
+					<td></td>
+					<td style="font-weight: bold;">{{ _("Total (excl. VAT)") }}</td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td class="text-right" style="font-weight: bold;">
+						<div class="value">
+							{{ doc.get_formatted("net_total", doc) }}
+						</div>
+					</td>
+				</tr>
+				{% if doc.taxes %}
+					{% set tax_data = doc.taxes %}
+					{% for i in tax_data %}
+						<tr>
+							<td></td>
+							<td style="font-weight: bold;">{{ _("VAT ( ")}} {{ i.rate }} {{ ("%)") }}</td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td class="text-right" style="font-weight: bold;">
+								<div class="value">
+									{{ i.get_formatted("tax_amount_after_discount_amount", doc) }}
+								</div>
+							</td>
+						</tr>
+					{% endfor %}
+				{% endif%}
+				<tr>
+					<td></td>
+					<td style="font-weight: bold;">{{ _("Total (incl. VAT)") }}</td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td class="text-right" style="font-weight: bold;">
+						<div class="value">
+							{{ doc.get_formatted("grand_total", doc) }}
+						</div>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	{% endif %}
+{% endif %}
