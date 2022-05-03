@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from setuptools import setup, find_packages
-from pip.req import parse_requirements
+from pip._internal.req import parse_requirements
 import re
 import ast
 
@@ -22,6 +22,6 @@ setup(
     packages=find_packages(),
     zip_safe=False,
     include_package_data=True,
-    install_requires=[str(ir.req) for ir in requirements],
+    install_requires=[str(ir.requirement) for ir in requirements], # change from ir.req to str(ir.requirement)
     dependency_links=[str(ir._link) for ir in requirements if ir._link]
 )
